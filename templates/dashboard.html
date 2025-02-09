@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tab {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quản lý Chi Tiêu</h1>
+
+    <!-- 🟢 Tab Buttons -->
+    <button onclick="showTab('transaction')">Nhập Giao Dịch</button>
+    <button onclick="showTab('dashboard')">Dashboard</button>
+
+    <!-- 🟢 Tab 1: Nhập Giao Dịch -->
+    <div id="transaction" class="tab active">
+        <h2>Nhập Giao Dịch</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <p>{{ form.transaction_date.label }} {{ form.transaction_date }}</p>
+            <p>{{ form.transaction_type.label }} {{ form.transaction_type }}</p>
+            <p>{{ form.category_id.label }} {{ form.category_id }}</p>
+            <p>{{ form.transaction_amount.label }} {{ form.transaction_amount }}</p>
+            <p>{{ form.submit }}</p>
+        </form>
+    </div>
+
+    <!-- 🟢 Tab 2: Dashboard -->
+    <div id="dashboard" class="tab">
+        <h2>Dashboard</h2>
+        <canvas id="expenseChart" width="400" height="400"></canvas>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        var categories = JSON.parse('{{ categories | tojson | safe }}');
+        var amounts = JSON.parse('{{ amounts | tojson | safe }}');
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById('expenseChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Chi tiêu theo danh mục',
+                        data: amounts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                }
+            });
+        });
+    </script>
+</body>
+</html>

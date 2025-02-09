@@ -1,0 +1,9 @@
+<form method="POST"> 
+    {{ form.hidden_tag() }}
+    <p>{{ form.username.label }} {{ form.username }}</p>
+    <p>{{ form.password.label }} {{ form.password }}</p>
+    <p>{{ form.submit }}</p>
+</form>
+
+<!-- Thêm liên kết đến trang Đăng ký -->
+<p>Chưa có tài khoản? <a href="{{ url_for('register') }}">Đăng ký ngay</a></p>
