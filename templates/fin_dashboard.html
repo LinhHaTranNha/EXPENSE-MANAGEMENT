@@ -239,6 +239,7 @@
           plugins: {
             legend: {
               labels: {
+                color: "white",
                 usePointStyle: true, // Biến ô ghi chú thành hình tròn
                 pointStyle: "circle",
               },
@@ -270,6 +271,7 @@
           plugins: {
             legend: {
               labels: {
+                color: "white",
                 usePointStyle: true, // Biến ô ghi chú thành hình tròn
                 pointStyle: "circle",
               },
@@ -285,9 +287,34 @@
           datasets: [
             {
               data: [40, 30, 20, 10],
-              backgroundColor: ["blue", "green", "red", "orange"],
+              backgroundColor: ["#1E90FF", "#32CD32", "#FF6347", "#FFA500"], // Màu gradient tươi sáng
+              hoverOffset: 10, // Hiệu ứng hover tăng kích thước
             },
           ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                usePointStyle: true,
+                color: "#FFFFFF", // Màu trắng cho nhãn
+                font: {
+                  size: 14,
+                  weight: "bold",
+                },
+              },
+              position: "bottom", // Đưa legend xuống dưới
+            },
+            tooltip: {
+              callbacks: {
+                label: function (tooltipItem) {
+                  const value = tooltipItem.raw;
+                  const percentage = ((value / 100) * 100).toFixed(2); // Tính phần trăm
+                  return `${tooltipItem.label}: ${value}% (${percentage}%)`;
+                },
+              },
+            },
+          },
         },
       });
     </script>
