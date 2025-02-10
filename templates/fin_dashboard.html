@@ -224,14 +224,26 @@
             {
               label: "Income",
               data: [5000, 10000, 7500, 12000],
-              borderColor: "green",
+              borderColor: "#00F719",
+              backgroundColor: "#00F719",
             },
             {
               label: "Expense",
               data: [3000, 7000, 4500, 8000],
-              borderColor: "red",
+              borderColor: "#F62A3C",
+              backgroundColor: "#F62A3C",
             },
           ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                usePointStyle: true, // Biến ô ghi chú thành hình tròn
+                pointStyle: "circle",
+              },
+            },
+          },
         },
       });
 
@@ -241,16 +253,28 @@
           labels: ["1", "2", "3", "4"],
           datasets: [
             {
-              label: "This Month",
-              data: [2000, 3000, 4000, 5000],
-              borderColor: "red",
+              label: "Income",
+              data: [5000, 10000, 7500, 12000],
+              borderColor: "#00F719",
+              backgroundColor: "#00F719",
             },
             {
-              label: "Last Month",
-              data: [2500, 3200, 4100, 4900],
-              borderColor: "gray",
+              label: "Expense",
+              data: [3000, 7000, 4500, 8000],
+              borderColor: "#F62A3C",
+              backgroundColor: "#F62A3C",
             },
           ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                usePointStyle: true, // Biến ô ghi chú thành hình tròn
+                pointStyle: "circle",
+              },
+            },
+          },
         },
       });
 
