@@ -11,141 +11,7 @@
       crossorigin="anonymous"
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #1b2b2b;
-        color: #e0e0e0;
-        margin: 0;
-        padding: 0;
-      }
-
-      h1,
-      h2 {
-        color: #ffffff;
-      }
-
-      .dashboard-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: auto auto;
-        gap: 20px;
-        margin: 20px;
-      }
-
-      .card {
-        background-color: #213838;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-      }
-
-      .card h2 {
-        margin-bottom: 10px;
-        font-size: 1.4rem;
-      }
-
-      .export-btn {
-        background-color: #4caf50;
-        border: none;
-        border-radius: 5px;
-        color: white;
-        padding: 8px 15px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        margin-top: 10px;
-      }
-
-      .progress-bar {
-        background-color: #4caf50;
-        height: 20px;
-        border-radius: 5px;
-      }
-
-      .progress-container {
-        background-color: #2b3b3b;
-        border-radius: 5px;
-        height: 20px;
-        overflow: hidden;
-      }
-
-      .alert {
-        color: red;
-        font-weight: bold;
-      }
-
-      .summary-chart {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 200px;
-      }
-
-      table {
-        width: 100%;
-        color: #e0e0e0;
-      }
-
-      th,
-      td {
-        text-align: left;
-        padding: 8px;
-      }
-
-      th {
-        background-color: #2d4a4a;
-      }
-
-      tr:nth-child(even) {
-        background-color: #263c3c;
-      }
-
-      .alert-fin {
-        padding: 0 20px;
-      }
-
-      h2 {
-        font-weight: 700;
-      }
-      .table-container {
-        max-height: calc(40px * 9); /* Chiều cao 7 dòng */
-        overflow-y: auto; /* Thêm cuộn dọc nếu vượt quá */
-        border: 1px solid #344a4a; /* Đường viền bảng */
-        border-radius: 8px; /* Bo góc bảng */
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-
-      thead {
-        background-color: #2d4a4a; /* Màu nền header */
-        color: #ffffff; /* Màu chữ header */
-      }
-
-      th,
-      td {
-        text-align: left;
-        padding: 12px 15px; /* Khoảng cách bên trong ô */
-        border: 1px solid #344a4a; /* Đường viền ô */
-        height: 40px; /* Đặt chiều cao dòng */
-      }
-
-      tbody tr:nth-child(odd) {
-        background-color: #263c3c; /* Màu nền hàng lẻ */
-      }
-
-      tbody tr:nth-child(even) {
-        background-color: #1f2f2f; /* Màu nền hàng chẵn */
-      }
-
-      tbody tr:hover {
-        background-color: #3c5a5a; /* Màu khi hover */
-        color: #ffffff; /* Màu chữ khi hover */
-      }
-    </style>
+    <link rel="stylesheet" href="../static/css/fin_dashboard.css" />
   </head>
   <body>
     <div class="dashboard-container">
@@ -250,12 +116,44 @@
 
       <!-- Saving Card -->
       <div class="card">
-        <h2>SAVING</h2>
-        <div class="progress-container">
-          <div class="progress-bar" style="width: 80%"></div>
+        <div class="saving-section">
+          <h2>SAVING</h2>
+          <!-- Goal Input -->
+          <label for="saving-goal">Set your saving goal:</label>
+          <input
+            type="text"
+            id="saving-goal"
+            placeholder="Enter your goal (VND)"
+          />
+
+          <!-- Save Button -->
+          <button id="save-goal" class="save-btn">Save Goal</button>
+
+          <!-- Progress Bar -->
+          <div class="progress-container">
+            <div
+              class="progress-bar"
+              id="progress-bar"
+              style="width: 80%"
+            ></div>
+          </div>
+
+          <!-- Current Savings -->
+          <p><strong>Current Saving:</strong> 5,000,000 VND</p>
+          <p>
+            <strong>Savings Goal:</strong>
+            <span id="goal-amount">10,000,000 VND</span>
+          </p>
         </div>
-        <p>5,000,000 VND</p>
-        <button class="export-btn">Exp to xlsx</button>
+
+        <h3>
+          You have not reached your savings goal yet
+          <span> <img src="../static/image/sad.png" /> </span>
+        </h3>
+        <h3>
+          You reached your savings goal!
+          <span> <img src="../static/image/loved.png" /> </span>
+        </h3>
       </div>
     </div>
 
@@ -269,6 +167,8 @@
         </div>
       </div>
     </div>
+
+    <script src="../static/js/fin_dashboard.js"></script>
 
     <script>
       // Placeholder for chart.js rendering
@@ -305,9 +205,27 @@
           plugins: {
             legend: {
               labels: {
-                color: "white",
-                usePointStyle: true, // Biến ô ghi chú thành hình tròn
+                color: "white", // Màu trắng cho nhãn trong legend
+                usePointStyle: true, // Ghi chú hình tròn
                 pointStyle: "circle",
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: "white", // Màu trắng cho trục X
+              },
+              grid: {
+                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục X (nhẹ hơn)
+              },
+            },
+            y: {
+              ticks: {
+                color: "white", // Màu trắng cho trục Y
+              },
+              grid: {
+                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục Y (nhẹ hơn)
               },
             },
           },
@@ -337,9 +255,27 @@
           plugins: {
             legend: {
               labels: {
-                color: "white",
-                usePointStyle: true, // Biến ô ghi chú thành hình tròn
+                color: "white", // Màu trắng cho nhãn trong legend
+                usePointStyle: true, // Ghi chú hình tròn
                 pointStyle: "circle",
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: "white", // Màu trắng cho trục X
+              },
+              grid: {
+                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục X (nhẹ hơn)
+              },
+            },
+            y: {
+              ticks: {
+                color: "white", // Màu trắng cho trục Y
+              },
+              grid: {
+                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục Y (nhẹ hơn)
               },
             },
           },
