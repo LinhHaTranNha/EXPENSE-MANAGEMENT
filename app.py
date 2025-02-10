@@ -50,32 +50,51 @@ def register():
 @login_required
 def add_transaction():
     form = TransactionForm()
-    
-    # 🟢 Lấy danh mục từ database
-    form.category_id.choices = [(c.id, c.name) for c in Category.query.filter_by(user_id=current_user.id).all()]
-    
+
     if form.validate_on_submit():
-        amount = form.transaction_amount.data
-        if form.transaction_type.data == "expense":  # Nếu là chi tiêu, số tiền là âm
-            amount = -abs(amount)
+        category_name = form.category_name.data.strip().lower()
+        transaction_date = datetime.combine(form.transaction_date.data, datetime.min.time())  # Kết hợp ngày và thời gian (00:00:00)
+        transaction_type = form.transaction_type.data
+        transaction_amount = abs(form.transaction_amount.data)
+
+        if transaction_type == "expense":
+            transaction_amount = -transaction_amount
+
+        category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
+        if not category:
+            category = Category(name=category_name, user_id=current_user.id)
+            db.session.add(category)
+            db.session.commit()
 
         new_transaction = Transaction(
-            transaction_date=form.transaction_date.data,
-            transaction_type=form.transaction_type.data,
-            category_id=form.category_id.data,
+            transaction_date=transaction_date,
+            transaction_type=transaction_type,
+            category_id=category.id,
             user_id=current_user.id,
-            transaction_amount=amount
+            transaction_amount=transaction_amount
         )
+
         db.session.add(new_transaction)
         db.session.commit()
 
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("fin_dashboard"))
 
     return render_template("add_transaction.html", form=form)
 
-from forms import TransactionForm  # 🟢 Import TransactionForm
 
-@app.route("/dashboard")
+@app.route("/fin_dashboard")
+@login_required
+def fin_dashboard():
+    expenses = Transaction.query.filter_by(user_id=current_user.id).all()
+
+    total_spent = sum(expense.transaction_amount for expense in expenses)
+    categories = [expense.category.name for expense in expenses]  # 🟢 Truy cập category.name thông qua mối quan hệ
+    amounts = [expense.transaction_amount for expense in expenses]
+
+    return render_template("fin_dashboard.html", categories=categories, amounts=amounts, total_spent=total_spent)
+
+
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
     form = TransactionForm()  # 🟢 Tạo form và truyền vào template

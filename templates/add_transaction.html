@@ -1,0 +1,15 @@
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <p>{{ form.transaction_date.label }} {{ form.transaction_date }}</p>
+    <p>{{ form.transaction_type.label }} {{ form.transaction_type }}</p>
+    <p>{{ form.category_name.label }} {{ form.category_name }}</p>
+    <p>{{ form.transaction_amount.label }} {{ form.transaction_amount }}</p>
+    <p>{{ form.submit }}</p>
+</form>
+
+<script>
+    // 🟢 Hiển thị Date Picker cho transaction_date
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelector("[name=transaction_date]").setAttribute("type", "date");
+    });
+</script>

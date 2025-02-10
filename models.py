@@ -25,3 +25,6 @@ class Transaction(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     transaction_amount = db.Column(db.Float, nullable=False)  # Âm nếu là "expense", dương nếu là "income"
+
+    # 🟢 Mối quan hệ với bảng Category
+    category = db.relationship("Category", backref="transactions")

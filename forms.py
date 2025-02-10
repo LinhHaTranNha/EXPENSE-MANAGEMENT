@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, FloatField, SubmitField, RadioField, SelectField
 from wtforms.validators import DataRequired, EqualTo
+from wtforms.fields import DateField
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -19,8 +20,8 @@ class ExpenseForm(FlaskForm):
     submit = SubmitField('Add Expense')
 
 class TransactionForm(FlaskForm):
-    transaction_date = StringField('Ngày giao dịch (YYYY-MM-DD)', validators=[DataRequired()])
+    transaction_date = DateField('Ngày giao dịch', format='%Y-%m-%d', validators=[DataRequired()])
     transaction_type = RadioField('Loại giao dịch', choices=[('income', 'Thu nhập'), ('expense', 'Chi tiêu')], validators=[DataRequired()])
-    category_id = SelectField('Danh mục', coerce=int, validators=[DataRequired()])  # Lấy từ database
+    category_name = StringField('Danh mục', validators=[DataRequired()])
     transaction_amount = FloatField('Số tiền', validators=[DataRequired()])
     submit = SubmitField('Thêm giao dịch')
