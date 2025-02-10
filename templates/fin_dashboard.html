@@ -107,6 +107,44 @@
       h2 {
         font-weight: 700;
       }
+      .table-container {
+        max-height: calc(40px * 9); /* Chiều cao 7 dòng */
+        overflow-y: auto; /* Thêm cuộn dọc nếu vượt quá */
+        border: 1px solid #344a4a; /* Đường viền bảng */
+        border-radius: 8px; /* Bo góc bảng */
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      thead {
+        background-color: #2d4a4a; /* Màu nền header */
+        color: #ffffff; /* Màu chữ header */
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 12px 15px; /* Khoảng cách bên trong ô */
+        border: 1px solid #344a4a; /* Đường viền ô */
+        height: 40px; /* Đặt chiều cao dòng */
+      }
+
+      tbody tr:nth-child(odd) {
+        background-color: #263c3c; /* Màu nền hàng lẻ */
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #1f2f2f; /* Màu nền hàng chẵn */
+      }
+
+      tbody tr:hover {
+        background-color: #3c5a5a; /* Màu khi hover */
+        color: #ffffff; /* Màu chữ khi hover */
+      }
     </style>
   </head>
   <body>
@@ -137,48 +175,76 @@
       <!-- Transaction History Card -->
       <div class="card" style="grid-column: span 2">
         <h2>TRANSACTION HISTORY</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Breakfast</td>
-              <td>10/02/2025</td>
-              <td>Expense</td>
-              <td>33,000</td>
-            </tr>
-            <tr>
-              <td>Dinner</td>
-              <td>09/02/2025</td>
-              <td>Expense</td>
-              <td>33,000</td>
-            </tr>
-            <tr>
-              <td>Tuition Fee</td>
-              <td>09/02/2025</td>
-              <td>Expense</td>
-              <td>500,000</td>
-            </tr>
-            <tr>
-              <td>Grocery</td>
-              <td>09/02/2025</td>
-              <td>Expense</td>
-              <td>500,000</td>
-            </tr>
-            <tr>
-              <td>Salary</td>
-              <td>09/02/2025</td>
-              <td>Income</td>
-              <td>10,000,000</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Breakfast</td>
+                <td>10/02/2025</td>
+                <td>Expense</td>
+                <td>33,000</td>
+              </tr>
+              <tr>
+                <td>Dinner</td>
+                <td>09/02/2025</td>
+                <td>Expense</td>
+                <td>33,000</td>
+              </tr>
+              <tr>
+                <td>Tuition Fee</td>
+                <td>09/02/2025</td>
+                <td>Expense</td>
+                <td>500,000</td>
+              </tr>
+              <tr>
+                <td>Grocery</td>
+                <td>09/02/2025</td>
+                <td>Expense</td>
+                <td>500,000</td>
+              </tr>
+              <tr>
+                <td>Salary</td>
+                <td>09/02/2025</td>
+                <td>Income</td>
+                <td>10,000,000</td>
+              </tr>
+              <tr>
+                <td>Salary</td>
+                <td>09/02/2025</td>
+                <td>Income</td>
+                <td>10,000,000</td>
+              </tr>
+              <tr>
+                <td>Salary</td>
+                <td>09/02/2025</td>
+                <td>Income</td>
+                <td>10,000,000</td>
+              </tr>
+              <tr>
+                <td>Salary</td>
+                <td>09/02/2025</td>
+                <td>Income</td>
+                <td>10,000,000</td>
+              </tr>
+              <tr>
+                <td>Salary</td>
+                <td>09/02/2025</td>
+                <td>Income</td>
+                <td>10,000,000</td>
+              </tr>
+              <!-- Thêm dữ liệu vào đây -->
+            </tbody>
+          </table>
+        </div>
+
         <button class="export-btn">Exp to xlsx</button>
       </div>
 
