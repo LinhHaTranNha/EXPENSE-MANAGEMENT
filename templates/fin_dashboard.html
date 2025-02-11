@@ -16,156 +16,172 @@
   <body>
     <h1 class="financial">Financial Dashboard</h1>
 
-    <div class="dashboard-container">
-      <!-- Revenue Card -->
-      <div class="card">
-        <h2>REVENUE</h2>
-        <canvas id="revenueChart"></canvas>
-        <button class="export-btn">Exp to xlsx</button>
-      </div>
-
-      <!-- Expense Card -->
-      <div class="card">
-        <h2>EXPENSE</h2>
-        <canvas id="expenseChart"></canvas>
-        <button class="export-btn">Exp to xlsx</button>
-      </div>
-
-      <!-- Summary Card -->
-      <div class="card">
-        <h2>SUMMARY</h2>
-        <div class="summary-chart">
-          <canvas id="summaryChart"></canvas>
-        </div>
-        <button class="export-btn">Exp to xlsx</button>
-      </div>
-
-      <!-- Transaction History Card -->
-      <div class="card" style="grid-column: span 2">
-        <h2>TRANSACTION HISTORY</h2>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Breakfast</td>
-                <td>10/02/2025</td>
-                <td>Expense</td>
-                <td>33,000</td>
-              </tr>
-              <tr>
-                <td>Dinner</td>
-                <td>09/02/2025</td>
-                <td>Expense</td>
-                <td>33,000</td>
-              </tr>
-              <tr>
-                <td>Tuition Fee</td>
-                <td>09/02/2025</td>
-                <td>Expense</td>
-                <td>500,000</td>
-              </tr>
-              <tr>
-                <td>Grocery</td>
-                <td>09/02/2025</td>
-                <td>Expense</td>
-                <td>500,000</td>
-              </tr>
-              <tr>
-                <td>Salary</td>
-                <td>09/02/2025</td>
-                <td>Income</td>
-                <td>10,000,000</td>
-              </tr>
-              <tr>
-                <td>Salary</td>
-                <td>09/02/2025</td>
-                <td>Income</td>
-                <td>10,000,000</td>
-              </tr>
-              <tr>
-                <td>Salary</td>
-                <td>09/02/2025</td>
-                <td>Income</td>
-                <td>10,000,000</td>
-              </tr>
-              <tr>
-                <td>Salary</td>
-                <td>09/02/2025</td>
-                <td>Income</td>
-                <td>10,000,000</td>
-              </tr>
-              <tr>
-                <td>Salary</td>
-                <td>09/02/2025</td>
-                <td>Income</td>
-                <td>10,000,000</td>
-              </tr>
-              <!-- Thêm dữ liệu vào đây -->
-            </tbody>
-          </table>
-        </div>
-
-        <button class="export-btn">Exp to xlsx</button>
-      </div>
-
-      <!-- Saving Card -->
-      <div class="card">
-        <div class="saving-section">
-          <h2>SAVING</h2>
-          <!-- Goal Input -->
-          <label for="saving-goal">Set your saving goal:</label>
-          <input
-            type="text"
-            id="saving-goal"
-            placeholder="Enter your goal (VND)"
-          />
-
-          <!-- Save Button -->
-          <button id="save-goal" class="save-btn">Save Goal</button>
-
-          <!-- Progress Bar -->
-          <div class="progress-container">
-            <div
-              class="progress-bar"
-              id="progress-bar"
-              style="width: 80%"
-            ></div>
+    <div class="container-fluid">
+      <div class="row g-4">
+        <!-- Revenue card mb-4 mb-4 mb-4 -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="card mb-4">
+            <h2>REVENUE</h2>
+            <canvas id="revenueChart"></canvas>
+            <button class="export-btn">Exp to xlsx</button>
           </div>
-
-          <!-- Current Savings -->
-          <p><strong>Current Saving:</strong> 5,000,000 VND</p>
-          <p>
-            <strong>Savings Goal:</strong>
-            <span id="goal-amount">10,000,000 VND</span>
-          </p>
         </div>
 
-        <h3 id="not-reached" style="display: none">
-          You have not reached your savings goal yet
-          <span> <img src="../static/image/sad.png" /> </span>
-        </h3>
-        <h3 id="reached" style="display: none">
-          You reached your savings goal!
-          <span> <img src="../static/image/loved.png" /> </span>
-        </h3>
-      </div>
-    </div>
+        <!-- Expense card mb-4 mb-4 mb-4 -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="card mb-4">
+            <h2>EXPENSE</h2>
+            <canvas id="expenseChart"></canvas>
+            <button class="export-btn">Exp to xlsx</button>
+          </div>
+        </div>
 
-    <div class="row alert-fin">
-      <div class="col-12">
-        <!-- Alert Card -->
-        <div class="card">
-          <h2>ALERT</h2>
-          <p class="alert">Maximum transaction amount for a day: 100,000 VND</p>
-          <p>You reached the maximum!! No more expense, please!!</p>
+        <!-- Summary card mb-4 mb-4 mb-4 -->
+        <div class="col-lg-4 col-md-12 col-sm-12">
+          <div class="card mb-4">
+            <h2>SUMMARY</h2>
+            <div class="summary-chart">
+              <canvas id="summaryChart"></canvas>
+            </div>
+            <button class="export-btn">Exp to xlsx</button>
+          </div>
+        </div>
+
+        <!-- Transaction History card mb-4 mb-4 mb-4 -->
+        <div class="col-lg-8 col-md-6 col-sm-12">
+          <div class="card mb-4" style="grid-column: span 2">
+            <h2>TRANSACTION HISTORY</h2>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Breakfast</td>
+                    <td>10/02/2025</td>
+                    <td>Expense</td>
+                    <td>33,000</td>
+                  </tr>
+                  <tr>
+                    <td>Dinner</td>
+                    <td>09/02/2025</td>
+                    <td>Expense</td>
+                    <td>33,000</td>
+                  </tr>
+                  <tr>
+                    <td>Tuition Fee</td>
+                    <td>09/02/2025</td>
+                    <td>Expense</td>
+                    <td>500,000</td>
+                  </tr>
+                  <tr>
+                    <td>Grocery</td>
+                    <td>09/02/2025</td>
+                    <td>Expense</td>
+                    <td>500,000</td>
+                  </tr>
+                  <tr>
+                    <td>Salary</td>
+                    <td>09/02/2025</td>
+                    <td>Income</td>
+                    <td>10,000,000</td>
+                  </tr>
+                  <tr>
+                    <td>Salary</td>
+                    <td>09/02/2025</td>
+                    <td>Income</td>
+                    <td>10,000,000</td>
+                  </tr>
+                  <tr>
+                    <td>Salary</td>
+                    <td>09/02/2025</td>
+                    <td>Income</td>
+                    <td>10,000,000</td>
+                  </tr>
+                  <tr>
+                    <td>Salary</td>
+                    <td>09/02/2025</td>
+                    <td>Income</td>
+                    <td>10,000,000</td>
+                  </tr>
+                  <tr>
+                    <td>Salary</td>
+                    <td>09/02/2025</td>
+                    <td>Income</td>
+                    <td>10,000,000</td>
+                  </tr>
+                  <!-- Thêm dữ liệu vào đây -->
+                </tbody>
+              </table>
+            </div>
+
+            <button class="export-btn">Exp to xlsx</button>
+          </div>
+        </div>
+
+        <!-- Saving card mb-4 mb-4 mb-4 -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="card mb-4">
+            <div class="saving-section">
+              <h2>SAVING</h2>
+              <!-- Goal Input -->
+              <label for="saving-goal">Set your saving goal:</label>
+              <input
+                type="text"
+                id="saving-goal"
+                placeholder="Enter your goal (VND)"
+              />
+
+              <!-- Save Button -->
+              <button id="save-goal" class="save-btn">Save Goal</button>
+
+              <!-- Progress Bar -->
+              <div class="progress-container">
+                <div
+                  class="progress-bar"
+                  id="progress-bar"
+                  style="width: 80%"
+                ></div>
+              </div>
+
+              <!-- Current Savings -->
+              <p><strong>Current Saving:</strong> 5,000,000 VND</p>
+              <p>
+                <strong>Savings Goal:</strong>
+                <span id="goal-amount">10,000,000 VND</span>
+              </p>
+            </div>
+
+            <h3 id="not-reached" style="display: none">
+              You have not reached your savings goal yet
+              <span> <img src="../static/image/sad.png" /> </span>
+            </h3>
+            <h3 id="reached" style="display: none">
+              You reached your savings goal!
+              <span> <img src="../static/image/loved.png" /> </span>
+            </h3>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="row">
+            <div class="col-12">
+              <!-- Alert card mb-4 mb-4 mb-4 -->
+              <div class="card mb-4">
+                <h2>ALERT</h2>
+                <p class="alert">
+                  Maximum transaction amount for a day: 100,000 VND
+                </p>
+                <p>You reached the maximum!! No more expense, please!!</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -94,7 +94,7 @@ h2 {
   font-weight: 700;
 }
 .table-container {
-  max-height: calc(40px * 12); /* Chiều cao 7 dòng */
+  max-height: calc(40px * 14); /* Chiều cao 7 dòng */
   overflow-y: auto; /* Thêm cuộn dọc nếu vượt quá */
   border: 1px solid #344a4a; /* Đường viền bảng */
   border-radius: 8px; /* Bo góc bảng */
