@@ -1,3 +1,5 @@
+// SAVING GOAL
+
 document.addEventListener("DOMContentLoaded", function () {
   const goalInput = document.getElementById("saving-goal");
   const saveButton = document.getElementById("save-goal");
@@ -52,3 +54,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
   updateDisplay(); // Chạy khi trang tải xong
 });
+
+// END SAVING GOAL

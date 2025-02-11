@@ -1,9 +1,37 @@
-<form method="POST"> 
-    {{ form.hidden_tag() }}
-    <p>{{ form.username.label }} {{ form.username }}</p>
-    <p>{{ form.password.label }} {{ form.password }}</p>
-    <p>{{ form.submit }}</p>
-</form>
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - InsideBox</title>
+    <link rel="stylesheet" href="../static/css/login.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Phần Form -->
+      <div class="left-section">
+        <h2>Sign In to Expense App</h2>
+        <p>Start your journey</p>
 
-<!-- Thêm liên kết đến trang Đăng ký -->
-<p>Chưa có tài khoản? <a href="{{ url_for('register') }}">Đăng ký ngay</a></p>
+        <form method="POST">
+          {{ form.hidden_tag() }}
+          <input type="text" name="username" placeholder="E-mail" />
+          <input type="password" name="password" placeholder="Password" />
+          <button type="submit">Sign In</button>
+        </form>
+
+        <!-- Đăng nhập bằng mạng xã hội -->
+        <div class="social-login">
+          <a href="#"><img src="../static/image/google-icon.webp" /></a>
+        </div>
+
+        <p>
+          Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a>
+        </p>
+      </div>
+
+      <!-- Hình nền bên phải -->
+      <div class="right-section"></div>
+    </div>
+  </body>
+</html>
