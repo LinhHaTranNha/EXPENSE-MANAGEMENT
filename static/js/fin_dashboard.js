@@ -1,78 +1,3 @@
-document.getElementById("saving-goal").addEventListener("input", function () {
-  const goalInput = parseInt(this.value) || 0; // Lấy giá trị nhập liệu
-  const currentSaving = 5000000; // Giá trị tiết kiệm hiện tại
-  const progressBar = document.getElementById("progress-bar");
-  const goalAmountDisplay = document.getElementById("goal-amount");
-
-  // Cập nhật mục tiêu hiển thị
-  goalAmountDisplay.textContent = `${goalInput.toLocaleString()} VND`;
-
-  // Tính phần trăm hoàn thành
-  const progress = Math.min((currentSaving / goalInput) * 100, 100);
-
-  // Cập nhật chiều rộng thanh progress
-  progressBar.style.width = `${progress}%`;
-  progressBar.textContent = `${Math.round(progress)}%`; // Hiển thị phần trăm trên thanh
-});
-
-// Lưu mục tiêu tiết kiệm lên cơ sở dữ liệu
-document.getElementById("save-goal").addEventListener("click", function () {
-  const savingGoal =
-    parseInt(document.getElementById("saving-goal").value) || 0;
-
-  if (savingGoal > 0) {
-    // Gửi saving goal lên server
-    fetch("/save-goal", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ goal: savingGoal }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          alert("Saving goal has been saved successfully!");
-        } else {
-          alert("Failed to save the saving goal. Please try again.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error saving goal:", error);
-        alert("An error occurred while saving. Please try again.");
-      });
-  } else {
-    alert("Please enter a valid saving goal.");
-  }
-});
-
-const displayInput = document.getElementById("display-saving-goal");
-const realInput = document.getElementById("real-saving-goal");
-const progressBar = document.getElementById("progress-bar");
-const goalAmountDisplay = document.getElementById("goal-amount");
-const currentSaving = 5000000; // Giá trị tiết kiệm hiện tại
-
-// Khi nhấn nút Save Goal
-document.getElementById("save-goal").addEventListener("click", function () {
-  const rawValue = realInput.value.replace(/,/g, ""); // Lấy giá trị không có dấu phẩy
-  const goalValue = parseInt(rawValue, 10); // Chuyển sang số nguyên
-
-  if (!isNaN(goalValue) && goalValue > 0) {
-    // Cập nhật hiển thị mục tiêu
-    goalAmountDisplay.textContent = `${goalValue.toLocaleString()} VND`;
-
-    // Tính toán phần trăm tiến trình
-    const progress = Math.min((currentSaving / goalValue) * 100, 100);
-    progressBar.style.width = `${progress}%`; // Cập nhật thanh tiến trình
-    progressBar.textContent = `${Math.round(progress)}%`; // Hiển thị phần trăm trên thanh
-
-    alert("Saving goal has been saved successfully!");
-  } else {
-    alert("Please enter a valid saving goal.");
-  }
-});
-
-// GOAL
-
 document.addEventListener("DOMContentLoaded", function () {
   const goalInput = document.getElementById("saving-goal");
   const saveButton = document.getElementById("save-goal");
@@ -84,6 +9,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const notReachedMsg = document.getElementById("not-reached");
   const reachedMsg = document.getElementById("reached");
 
+  /** 📌 Hàm định dạng số có dấu phẩy */
+  function formatCurrency(value) {
+    return value.toLocaleString("en-US") + " VND"; // Định dạng chuẩn
+  }
+
+  /** 📌 Hàm cập nhật giao diện */
   function updateDisplay() {
     console.log(`Current Saving: ${currentSaving}, Goal: ${savingsGoal}`);
 
@@ -96,20 +27,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let progress = (currentSaving / savingsGoal) * 100;
-    progressBar.style.width = progress + "%";
+    progressBar.style.width = `${Math.min(progress, 100)}%`;
     progressBar.textContent = `${Math.min(progress, 100).toFixed(0)}%`;
   }
 
-  saveButton.addEventListener("click", function () {
-    let userGoal = parseInt(goalInput.value.replace(/\D/g, ""), 10);
-    if (!isNaN(userGoal) && userGoal > 0) {
-      savingsGoal = userGoal;
-      goalAmountSpan.textContent = userGoal.toLocaleString("en-US") + " VND";
-      updateDisplay();
+  /** 📌 Cập nhật tiến trình ngay khi nhập số */
+  goalInput.addEventListener("input", function () {
+    let rawValue = goalInput.value.replace(/,/g, "").replace(/\D/g, ""); // Loại bỏ dấu `,` và ký tự không phải số
+    if (rawValue === "") {
+      savingsGoal = 1; // Tránh chia cho 0
+    } else {
+      savingsGoal = parseInt(rawValue, 10);
     }
+
+    goalInput.value = parseInt(rawValue, 10).toLocaleString("en-US"); // Hiển thị số có dấu `,`
+    goalAmountSpan.textContent = formatCurrency(savingsGoal); // Cập nhật số mục tiêu ngay lập tức
+    updateDisplay(); // Cập nhật tiến trình ngay
   });
 
-  updateDisplay();
-});
+  /** 📌 Xử lý khi nhấn "Save Goal" */
+  saveButton.addEventListener("click", function () {
+    alert("✅ Mục tiêu tiết kiệm đã được lưu!");
+  });
 
-// END GOAL
+  updateDisplay(); // Chạy khi trang tải xong
+});
