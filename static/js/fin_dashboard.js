@@ -51,33 +51,6 @@ const progressBar = document.getElementById("progress-bar");
 const goalAmountDisplay = document.getElementById("goal-amount");
 const currentSaving = 5000000; // Giá trị tiết kiệm hiện tại
 
-// Hiển thị input giả khi người dùng click
-displayInput.addEventListener("click", function () {
-  realInput.style.display = "block"; // Hiện input thật
-  realInput.focus(); // Đưa focus vào input thật
-  displayInput.style.display = "none"; // Ẩn input giả
-});
-
-// Khi người dùng nhập vào input thật
-realInput.addEventListener("input", function () {
-  const rawValue = this.value.replace(/,/g, ""); // Loại bỏ dấu phẩy
-  if (!isNaN(rawValue) && rawValue !== "") {
-    const formattedValue = parseInt(rawValue, 10).toLocaleString("en-US");
-    displayInput.value = formattedValue; // Cập nhật input giả
-  }
-});
-
-// Khi rời khỏi input thật
-realInput.addEventListener("blur", function () {
-  const rawValue = this.value.replace(/,/g, ""); // Loại bỏ dấu phẩy
-  if (!isNaN(rawValue) && rawValue !== "") {
-    const formattedValue = parseInt(rawValue, 10).toLocaleString("en-US");
-    displayInput.value = formattedValue; // Hiển thị giá trị đã định dạng
-  }
-  this.style.display = "none"; // Ẩn input thật
-  displayInput.style.display = "block"; // Hiện input giả
-});
-
 // Khi nhấn nút Save Goal
 document.getElementById("save-goal").addEventListener("click", function () {
   const rawValue = realInput.value.replace(/,/g, ""); // Lấy giá trị không có dấu phẩy
@@ -97,3 +70,46 @@ document.getElementById("save-goal").addEventListener("click", function () {
     alert("Please enter a valid saving goal.");
   }
 });
+
+// GOAL
+
+document.addEventListener("DOMContentLoaded", function () {
+  const goalInput = document.getElementById("saving-goal");
+  const saveButton = document.getElementById("save-goal");
+  const goalAmountSpan = document.getElementById("goal-amount");
+  const progressBar = document.getElementById("progress-bar");
+  const currentSaving = 5000000; // Giá trị tiết kiệm hiện tại
+  let savingsGoal = 10000000; // Mục tiêu mặc định
+
+  const notReachedMsg = document.getElementById("not-reached");
+  const reachedMsg = document.getElementById("reached");
+
+  function updateDisplay() {
+    console.log(`Current Saving: ${currentSaving}, Goal: ${savingsGoal}`);
+
+    if (currentSaving >= savingsGoal) {
+      reachedMsg.style.display = "block";
+      notReachedMsg.style.display = "none";
+    } else {
+      reachedMsg.style.display = "none";
+      notReachedMsg.style.display = "block";
+    }
+
+    let progress = (currentSaving / savingsGoal) * 100;
+    progressBar.style.width = progress + "%";
+    progressBar.textContent = `${Math.min(progress, 100).toFixed(0)}%`;
+  }
+
+  saveButton.addEventListener("click", function () {
+    let userGoal = parseInt(goalInput.value.replace(/\D/g, ""), 10);
+    if (!isNaN(userGoal) && userGoal > 0) {
+      savingsGoal = userGoal;
+      goalAmountSpan.textContent = userGoal.toLocaleString("en-US") + " VND";
+      updateDisplay();
+    }
+  });
+
+  updateDisplay();
+});
+
+// END GOAL
