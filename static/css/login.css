@@ -5,64 +5,117 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
-/* 📌 Cột trái (Form login) */
-.left-section {
-  background-color: #001307; /* Màu nền khối */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 30%;
-}
-
 /* 📌 Khối login */
 .login-box {
-  background-color: #456b52;
+  background: #1a3323;
   padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  max-width: 1000px;
   width: 100%;
   text-align: center;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.8s ease-in-out;
   position: relative;
-  left: 50px;
+  left: 55px;
+}
+
+/* 📌 Hiệu ứng xuất hiện */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* 📌 Icon */
 .icon img {
-  width: 60px;
+  width: 80px;
   margin-bottom: 15px;
+  border-radius: 50%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease-in-out;
+}
+
+.icon img:hover {
+  transform: scale(1.1);
 }
 
 /* 📌 Ô nhập liệu */
+.form-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
 .form-control {
-  background-color: white;
-  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
   border: none;
   padding: 12px;
   border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+/* 📌 Hiệu ứng focus */
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 8px #00ff99;
+}
+
+/* 📌 Placeholder đẹp hơn */
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  transition: 0.3s;
+}
+
+/* 📌 Placeholder mờ dần khi nhập */
+.form-control:focus::placeholder {
+  color: rgba(255, 255, 255, 0.2);
 }
 
 /* 📌 Nút đăng nhập */
 .btn-dark {
-  background-color: #081c12;
+  background: linear-gradient(135deg, #081c12, #0f2a1b);
   border: none;
   font-size: 16px;
-  padding: 10px;
+  padding: 12px;
+  border-radius: 8px;
   transition: 0.3s;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* 📌 Hiệu ứng hover */
 .btn-dark:hover {
-  background-color: #0f2a1b;
+  background: linear-gradient(135deg, #0f2a1b, #00ff99);
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 12px rgba(0, 255, 153, 0.3);
 }
 
 /* 📌 Liên kết */
 a {
   color: #00ff99;
   text-decoration: none;
+  font-weight: bold;
 }
 
 a:hover {
   text-decoration: underline;
+}
+
+/* 📌 Hiệu ứng khi nhấn */
+.btn-dark:active {
+  transform: scale(0.98);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* 📌 Cột phải */
