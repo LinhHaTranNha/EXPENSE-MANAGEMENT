@@ -5,8 +5,13 @@ body {
   align-items: center;
   height: 100vh;
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(to right, #ffffff 50%, #8ec5fc 50%);
+  background-image: url("../image/background.jpg"); /* Đảm bảo đường dẫn đúng */
+  background-repeat: no-repeat;
+  background-size: cover; /* 🌟 Làm cho ảnh phủ hết màn hình */
+  background-position: center; /* 🌟 Căn giữa ảnh */
   margin: 0;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* 📌 Container chính của form */
