@@ -48,36 +48,47 @@
         </div>
 
        <!-- 🟢 Transaction History Table -->
-<div class="col-lg-8 col-md-6 col-sm-12">
-  <div class="card mb-4" style="grid-column: span 2">
-      <h2>TRANSACTION HISTORY</h2>
-      <div class="table-container">
-          <table>
-              <thead>
-                  <tr>
-                      <th>Description</th>
-                      <th>Date</th>
-                      <th>Type</th>
-                      <th>Amount</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for transaction in transactions %}
-                  <tr>
-                      <td>{{ transaction.category.name }}</td>
-                      <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
-                      <td>{{ transaction.transaction_type }}</td>
-                      <td style="color: '{{ 'red' if transaction.transaction_type == 'expense' else 'green' }}';">
-                        {{ "{:,.0f}".format(transaction.transaction_amount) }} VND
-                    </td>                              
-                  </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-      </div>
-      <button class="export-btn">Exp to xlsx</button>
-  </div>
-</div>
+       <div class="col-lg-8 col-md-6 col-sm-12">
+        <div class="card mb-4">
+            <h2>TRANSACTION HISTORY</h2>
+    
+            <!-- Dropdown nhóm theo Type -->
+            <label for="groupByType">Group by Type:</label>
+            <select id="groupByType" onchange="groupByType()">
+                <option value="all" >All</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+    
+            <div class="table-container">
+                <table id="transactionTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">Description</th>
+                            <th onclick="sortTable(1)">Date ⬍</th>
+                            <th onclick="sortTable(2)">Type</th>
+                            <th onclick="sortTable(3)">Amount ⬍</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr data-type="{{ transaction.transaction_type }}">
+                            <td>{{ transaction.category.name }}</td>
+                            <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ transaction.transaction_type }}</td>
+                            <td >
+                                {{ "{:,.0f}".format(transaction.transaction_amount) }} VND
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    
+            <button class="export-btn">Exp to xlsx</button>
+        </div>
+    </div>
+    
 
 
         <!-- Saving card mb-4 mb-4 mb-4 -->
@@ -240,6 +251,47 @@
               }
           }
       });
+
+      // 🟢 Sort Table (Date & Amount)
+function sortTable(columnIndex) {
+    let table = document.getElementById("transactionTable");
+    let rows = Array.from(table.rows).slice(1);
+    let isAscending = table.getAttribute("data-sort") !== "asc";
+
+    rows.sort((rowA, rowB) => {
+        let cellA = rowA.cells[columnIndex].innerText.trim();
+        let cellB = rowB.cells[columnIndex].innerText.trim();
+
+        if (columnIndex === 1) {
+            // 🟢 Sort theo Date (dd/mm/yyyy -> yyyy/mm/dd)
+            let dateA = cellA.split("/").reverse().join("-");
+            let dateB = cellB.split("/").reverse().join("-");
+            return isAscending ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+        } else if (columnIndex === 3) {
+            // 🟢 Sort theo Amount (số tiền)
+            let amountA = parseInt(cellA.replace(/,/g, ""));
+            let amountB = parseInt(cellB.replace(/,/g, ""));
+            return isAscending ? amountA - amountB : amountB - amountA;
+        } else {
+            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+        }
+    });
+
+    table.tBodies[0].append(...rows);
+    table.setAttribute("data-sort", isAscending ? "asc" : "desc");
+}
+
+// 🟢 Nhóm theo Type (Income / Expense)
+function groupByType() {
+    let selectedType = document.getElementById("groupByType").value;
+    let rows = document.querySelectorAll("#transactionTable tbody tr");
+
+    rows.forEach(row => {
+        let transactionType = row.getAttribute("data-type");
+        row.style.display = (selectedType === "all" || transactionType === selectedType) ? "" : "none";
+    });
+}
+
   </script>
   
   

@@ -242,3 +242,44 @@ h3 span img:hover {
   font-weight: 700;
   text-align: center;
 }
+
+/* 🟢 Định dạng chung */
+label[for="groupByType"] {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-right: 10px;
+}
+
+/* 🟢 Style cho dropdown */
+#groupByType {
+  background-color: #213838;
+  color: #ffffff;
+  border: 1px solid #4caf50;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* 🟢 Hover effect */
+#groupByType:hover {
+  background-color: #2b4b4b;
+  border-color: #66bb6a;
+}
+
+/* 🟢 Khi chọn vào */
+#groupByType:focus {
+  outline: none;
+  border-color: #81c784;
+  box-shadow: 0 0 5px rgba(129, 199, 132, 0.7);
+}
+
+/* 🟢 Style cho các option */
+#groupByType option {
+  background-color: #213838;
+  color: #ffffff;
+  padding: 5px;
+  font-size: 14px;
+}
