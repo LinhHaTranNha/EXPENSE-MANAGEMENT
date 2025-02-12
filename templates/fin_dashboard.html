@@ -271,7 +271,13 @@
           },
           options: {
               plugins: {
-                  legend: { labels: { color: "white" } }
+                legend: {
+              labels: {
+                color: "white", // Màu trắng cho nhãn trong legend
+                usePointStyle: true, // Ghi chú hình tròn
+                pointStyle: "circle",
+              },
+            },
               },
               scales: {
                   x: { ticks: { color: "white" } },
