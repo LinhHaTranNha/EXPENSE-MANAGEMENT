@@ -189,155 +189,99 @@
     <script src="../static/js/fin_dashboard.js"></script>
 
     <script>
-      // Placeholder for chart.js rendering
-      const revenueCtx = document
-        .getElementById("revenueChart")
-        .getContext("2d");
-      const expenseCtx = document
-        .getElementById("expenseChart")
-        .getContext("2d");
-      const summaryCtx = document
-        .getElementById("summaryChart")
-        .getContext("2d");
-
-      new Chart(revenueCtx, {
-        type: "line",
-        data: {
-          labels: ["1", "2", "3", "4"],
-          datasets: [
-            {
-              label: "Income",
-              data: [5000, 10000, 7500, 12000],
-              borderColor: "#00F719",
-              backgroundColor: "#00F719",
-            },
-            {
-              label: "Expense",
-              data: [3000, 7000, 4500, 8000],
-              borderColor: "#F62A3C",
-              backgroundColor: "#F62A3C",
-            },
-          ],
-        },
-        options: {
-          plugins: {
-            legend: {
+      // 🟢 Lấy dữ liệu từ Flask
+      var revenueData = JSON.parse('{{ revenue_data | tojson | safe }}');
+      var expenseData = JSON.parse('{{ expense_data | tojson | safe }}');
+      var labels = JSON.parse('{{ labels | tojson | safe }}');
+  
+      // 🟢 Biểu đồ REVENUE (Income vs Expense tháng này)
+      var ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+      new Chart(ctxRevenue, {
+          type: "line",
+          data: {
+              labels: labels,
+              datasets: [
+                  {
+                      label: "Income",
+                      data: revenueData.income,
+                      borderColor: "#00F719",
+                      backgroundColor: "rgba(0, 247, 25, 0.2)",
+                      fill: false,
+                      tension: 0.4,
+                      pointStyle: 'circle',
+                      pointRadius: 5
+                  },
+                  {
+                      label: "Expense",
+                      data: revenueData.expense,
+                      borderColor: "#F62A3C",
+                      backgroundColor: "rgba(246, 42, 60, 0.2)",
+                      fill: false,
+                      tension: 0.4,
+                      pointStyle: 'circle',
+                      pointRadius: 5
+                  }
+              ]
+          },
+          options: {
+              plugins: {
+                legend: {
               labels: {
                 color: "white", // Màu trắng cho nhãn trong legend
                 usePointStyle: true, // Ghi chú hình tròn
                 pointStyle: "circle",
               },
             },
-          },
-          scales: {
-            x: {
-              ticks: {
-                color: "white", // Màu trắng cho trục X
               },
-              grid: {
-                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục X (nhẹ hơn)
-              },
-            },
-            y: {
-              ticks: {
-                color: "white", // Màu trắng cho trục Y
-              },
-              grid: {
-                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục Y (nhẹ hơn)
-              },
-            },
-          },
-        },
+              scales: {
+                  x: { ticks: { color: "white" } },
+                  y: { ticks: { color: "white" } }
+              }
+          }
       });
-
-      new Chart(expenseCtx, {
-        type: "line",
-        data: {
-          labels: ["1", "2", "3", "4"],
-          datasets: [
-            {
-              label: "Income",
-              data: [5000, 10000, 7500, 12000],
-              borderColor: "#00F719",
-              backgroundColor: "#00F719",
-            },
-            {
-              label: "Expense",
-              data: [3000, 7000, 4500, 8000],
-              borderColor: "#F62A3C",
-              backgroundColor: "#F62A3C",
-            },
-          ],
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: "white", // Màu trắng cho nhãn trong legend
-                usePointStyle: true, // Ghi chú hình tròn
-                pointStyle: "circle",
-              },
-            },
+  
+      // 🟢 Biểu đồ EXPENSE (Chi tiêu tháng này vs tháng trước)
+      var ctxExpense = document.getElementById('expenseChart').getContext('2d');
+      new Chart(ctxExpense, {
+          type: "line",
+          data: {
+              labels: labels,
+              datasets: [
+                  {
+                      label: "This Month",
+                      data: expenseData.current,
+                      borderColor: "#F62A3C",
+                      backgroundColor: "rgba(246, 42, 60, 0.2)",
+                      fill: false,
+                      tension: 0.4,
+                      pointStyle: 'circle',
+                      pointRadius: 5
+                  },
+                  {
+                      label: "Last Month",
+                      data: expenseData.previous,
+                      borderColor: "gray",
+                      backgroundColor: "rgba(144, 144, 144, 0.2)",
+                      fill: false,
+                      tension: 0.4,
+                      pointStyle: 'circle',
+                      pointRadius: 5
+                  }
+              ]
           },
-          scales: {
-            x: {
-              ticks: {
-                color: "white", // Màu trắng cho trục X
+          options: {
+              plugins: {
+                  legend: { labels: { color: "white" } }
               },
-              grid: {
-                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục X (nhẹ hơn)
-              },
-            },
-            y: {
-              ticks: {
-                color: "white", // Màu trắng cho trục Y
-              },
-              grid: {
-                color: "rgba(255, 255, 255, 0.2)", // Màu lưới trục Y (nhẹ hơn)
-              },
-            },
-          },
-        },
+              scales: {
+                  x: { ticks: { color: "white" } },
+                  y: { ticks: { color: "white" } }
+              }
+          }
       });
-
-      new Chart(summaryCtx, {
-        type: "pie",
-        data: {
-          labels: ["Tuition Fee", "Food & Beverage", "Grocery", "Others"],
-          datasets: [
-            {
-              data: [40, 30, 20, 10],
-              backgroundColor: ["#1E90FF", "#32CD32", "#FF6347", "#FFA500"], // Màu gradient tươi sáng
-              hoverOffset: 10, // Hiệu ứng hover tăng kích thước
-            },
-          ],
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                usePointStyle: true,
-                color: "#FFFFFF", // Màu trắng cho nhãn
-                font: {
-                  size: 14,
-                  weight: "bold",
-                },
-              },
-              position: "bottom", // Đưa legend xuống dưới
-            },
-            tooltip: {
-              callbacks: {
-                label: function (tooltipItem) {
-                  const value = tooltipItem.raw;
-                  const percentage = ((value / 100) * 100).toFixed(2); // Tính phần trăm
-                  return `${tooltipItem.label}: ${value}% (${percentage}%)`;
-                },
-              },
-            },
-          },
-        },
-      });
-    </script>
+  </script>
+  
+  
 
     <script
       src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"

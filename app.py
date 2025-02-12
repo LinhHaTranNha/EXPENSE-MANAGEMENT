@@ -3,7 +3,8 @@ from database import db, app
 from models import User, Expense, Transaction, Category
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
+from sqlalchemy import extract
 
 app.config['SECRET_KEY'] = 'linh31052004'
 
@@ -85,13 +86,71 @@ def add_transaction():
 @app.route("/fin_dashboard")
 @login_required
 def fin_dashboard():
-    expenses = Transaction.query.filter_by(user_id=current_user.id).all()
+    today = datetime.today()
+    current_month = today.month
+    previous_month = (today - timedelta(days=30)).month
+    current_year = today.year
 
-    total_spent = sum(expense.transaction_amount for expense in expenses)
-    categories = [expense.category.name for expense in expenses]  # 🟢 Truy cập category.name thông qua mối quan hệ
-    amounts = [expense.transaction_amount for expense in expenses]
+    # 🟢 Lấy giao dịch tháng hiện tại và tháng trước
+    transactions_current = Transaction.query.filter(
+        Transaction.user_id == current_user.id,
+        extract('month', Transaction.transaction_date) == current_month,
+        extract('year', Transaction.transaction_date) == current_year
+    ).all()
 
-    return render_template("fin_dashboard.html", categories=categories, amounts=amounts, total_spent=total_spent)
+    transactions_previous = Transaction.query.filter(
+        Transaction.user_id == current_user.id,
+        extract('month', Transaction.transaction_date) == previous_month,
+        extract('year', Transaction.transaction_date) == current_year
+    ).all()
+
+    # 🟢 Tạo danh sách ngày từ 1 -> ngày hiện tại (để làm nhãn trục X)
+    days = list(range(1, today.day + 1))
+
+    # 🟢 Tổng hợp thu nhập và chi tiêu của tháng hiện tại
+    total_income = sum(t.transaction_amount for t in transactions_current if t.transaction_amount > 0)
+    total_expense = abs(sum(t.transaction_amount for t in transactions_current if t.transaction_amount < 0))
+
+    # 🟢 Tạo dict lưu tổng income và expense theo từng ngày
+    revenue_current = {day: 0 for day in days}
+    expense_current = {day: 0 for day in days}
+    revenue_previous = {day: 0 for day in days}
+    expense_previous = {day: 0 for day in days}
+
+    # 🟢 Duyệt qua giao dịch để tổng hợp dữ liệu từng ngày
+    for t in transactions_current:
+        day = t.transaction_date.day
+        if t.transaction_amount > 0:
+            revenue_current[day] += t.transaction_amount
+        else:
+            expense_current[day] += abs(t.transaction_amount)
+
+    for t in transactions_previous:
+        day = t.transaction_date.day
+        if t.transaction_amount > 0:
+            revenue_previous[day] += t.transaction_amount
+        else:
+            expense_previous[day] += abs(t.transaction_amount)
+
+    # 🟢 Chuyển dữ liệu thành danh sách để hiển thị trên biểu đồ
+    revenue_data = {
+        "income": [revenue_current[day] for day in days],
+        "expense": [expense_current[day] for day in days]
+    }
+
+    expense_data = {
+        "current": [expense_current[day] for day in days],
+        "previous": [expense_previous[day] for day in days]
+    }
+
+    return render_template(
+        "fin_dashboard.html",
+        revenue_data=revenue_data,
+        expense_data=expense_data,
+        total_income=total_income,
+        total_expense=total_expense,
+        labels=days
+    )
 
 
 @app.route("/dashboard", methods=["GET", "POST"])
