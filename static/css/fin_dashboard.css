@@ -283,3 +283,58 @@ label[for="groupByType"] {
   padding: 5px;
   font-size: 14px;
 }
+
+/* 📌 Định dạng chung cho input type="date" */
+input[type="date"] {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
+  border: 1px solid #00ff99;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+  min-width: 150px;
+  margin-right: 10px; /* Khoảng cách giữa các input */
+}
+
+/* 📌 Hiệu ứng khi hover */
+input[type="date"]:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 📌 Khi focus */
+input[type="date"]:focus {
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 10px #00ff99;
+}
+
+/* 📌 Nút Apply */
+button.apply-btn {
+  background: linear-gradient(135deg, #0f2a1b, #00ff99);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* 📌 Hover cho nút Apply */
+button.apply-btn:hover {
+  background: linear-gradient(135deg, #00ff99, #0f2a1b);
+  transform: scale(1.07);
+  box-shadow: 0px 4px 10px rgba(0, 255, 153, 0.4);
+}
+
+/* 📌 Responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+  input[type="date"], 
+  button.apply-btn {
+      width: 100%;
+      margin-bottom: 10px; /* Tạo khoảng cách giữa các phần tử trên mobile */
+  }
+}

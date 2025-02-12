@@ -47,48 +47,63 @@
           </div>
         </div>
 
-       <!-- 🟢 Transaction History Table -->
-       <div class="col-lg-8 col-md-6 col-sm-12">
-        <div class="card mb-4">
-            <h2>TRANSACTION HISTORY</h2>
-    
-            <!-- Dropdown nhóm theo Type -->
-            <label for="groupByType">Group by Type:</label>
-            <select id="groupByType" onchange="groupByType()">
-                <option value="all" >All</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-            </select>
-    
-            <div class="table-container">
-                <table id="transactionTable">
-                    <thead>
-                        <tr>
-                            <th onclick="sortTable(0)">Description</th>
-                            <th onclick="sortTable(1)">Date ⬍</th>
-                            <th onclick="sortTable(2)">Type</th>
-                            <th onclick="sortTable(3)">Amount ⬍</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for transaction in transactions %}
-                        <tr data-type="{{ transaction.transaction_type }}">
-                            <td>{{ transaction.category.name }}</td>
-                            <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
-                            <td>{{ transaction.transaction_type }}</td>
-                            <td >
-                                {{ "{:,.0f}".format(transaction.transaction_amount) }} VND
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-    
-            <button class="export-btn">Exp to xlsx</button>
+            <!-- 🟢 Transaction History Table -->
+        <div class="col-lg-8 col-md-6 col-sm-12">
+          <div class="card mb-4">
+              <h2>TRANSACTION HISTORY</h2>
+
+              <!-- 🟢 Chọn khoảng thời gian -->
+              <!-- 🟢 Form chọn ngày -->
+            <form method="POST" class="date-picker-container">
+              <label for="startDate">Start Date:</label>
+              <input type="date" id="startDate" name="start_date" value="{{ selected_start_date }}">
+
+              <label for="endDate">End Date:</label>
+              <input type="date" id="endDate" name="end_date" value="{{ selected_end_date }}">
+
+              <button type="submit" class="apply-btn">Apply</button>
+            </form>
+
+
+
+              <!-- 🟢 Dropdown nhóm theo Type -->
+              <label for="groupByType">Group by Type:</label>
+              <select id="groupByType" onchange="groupByType()">
+                  <option value="all">All</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+              </select>
+
+              <!-- 🟢 Bảng hiển thị giao dịch -->
+              <div class="table-container">
+                  <table id="transactionTable">
+                      <thead>
+                          <tr>
+                              <th onclick="sortTable(0)">Description</th>
+                              <th onclick="sortTable(1)">Date ⬍</th>
+                              <th onclick="sortTable(2)">Type</th>
+                              <th onclick="sortTable(3)">Amount ⬍</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for transaction in transactions %}
+                          <tr data-type="{{ transaction.transaction_type }}">
+                              <td>{{ transaction.category.name }}</td>
+                              <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
+                              <td>{{ transaction.transaction_type }}</td>
+                              <td>
+                                  {{ "{:,.0f}".format(transaction.transaction_amount) }} VND
+                              </td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+
+              <button class="export-btn">Exp to xlsx</button>
+          </div>
         </div>
-    </div>
-    
+
 
 
         <!-- Saving card mb-4 mb-4 mb-4 -->

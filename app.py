@@ -83,11 +83,10 @@ def add_transaction():
     return render_template("add_transaction.html", form=form)
 
 
-@app.route("/fin_dashboard")
+@app.route("/fin_dashboard", methods=["GET", "POST"])
 @login_required
 def fin_dashboard():
     today = datetime.today()
-    current_day = today.day  # 🟢 Lấy ngày hiện tại (VD: 12)
     current_month = today.month
     current_year = today.year
 
@@ -99,42 +98,56 @@ def fin_dashboard():
         previous_month = current_month - 1
         previous_year = current_year
 
-    # 🟢 Lấy tất cả giao dịch trong tháng hiện tại và tháng trước (tính tới ngày hiện tại)
+    # 🟢 Nhận ngày bắt đầu & kết thúc từ form
+    start_date = request.form.get("start_date")
+    end_date = request.form.get("end_date")
+
+    if not start_date:
+        start_date = datetime(current_year, current_month, 1)
+    else:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+
+    if not end_date:
+        end_date = today
+    else:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+
+    # 🟢 Lấy giao dịch trong khoảng ngày đã chọn
     transactions_current = Transaction.query.filter(
         Transaction.user_id == current_user.id,
-        extract('month', Transaction.transaction_date) == current_month,
-        extract('year', Transaction.transaction_date) == current_year,
-        extract('day', Transaction.transaction_date) <= current_day  # 🔥 Chỉ lấy tới ngày hiện tại
+        Transaction.transaction_date >= start_date,
+        Transaction.transaction_date <= end_date
     ).all()
 
     transactions_previous = Transaction.query.filter(
         Transaction.user_id == current_user.id,
         extract('month', Transaction.transaction_date) == previous_month,
-        extract('year', Transaction.transaction_date) == previous_year,
-        extract('day', Transaction.transaction_date) <= current_day  # 🔥 Chỉ lấy tới ngày hiện tại
+        extract('year', Transaction.transaction_date) == previous_year
     ).all()
 
-    # 🟢 Tạo danh sách ngày từ 1 → ngày hiện tại
-    days = list(range(1, current_day + 1))
+    # 🟢 Tạo danh sách ngày từ start_date → end_date
+    days = list(range(start_date.day, end_date.day + 1))
 
-    # 🟢 Tổng hợp thu nhập và chi tiêu của tháng hiện tại
-    total_income = sum(t.transaction_amount for t in transactions_current if t.transaction_amount > 0)
-    total_expense = abs(sum(t.transaction_amount for t in transactions_current if t.transaction_amount < 0))
-
-    # 🟢 Tạo dictionary lưu tổng income và expense theo từng ngày (chỉ từ 1 → ngày hiện tại)
+    # 🟢 Tạo dictionary lưu tổng income và expense theo từng ngày
     revenue_current = {day: 0 for day in days}
     expense_current = {day: 0 for day in days}
     revenue_previous = {day: 0 for day in days}
     expense_previous = {day: 0 for day in days}
 
-    # 🟢 Duyệt qua giao dịch để tổng hợp dữ liệu từng ngày
+    # 🟢 Cập nhật dữ liệu từng ngày (KIỂM TRA `day` TRƯỚC KHI CỘNG)
     for t in transactions_current:
         day = t.transaction_date.day
+        if day not in revenue_current:  # 🔥 Nếu ngày chưa có, thêm vào dictionary
+            revenue_current[day] = 0
+            expense_current[day] = 0
         revenue_current[day] += max(0, t.transaction_amount)  # Thu nhập
         expense_current[day] += abs(min(0, t.transaction_amount))  # Chi tiêu
 
     for t in transactions_previous:
         day = t.transaction_date.day
+        if day not in revenue_previous:  # 🔥 Nếu ngày chưa có, thêm vào dictionary
+            revenue_previous[day] = 0
+            expense_previous[day] = 0
         revenue_previous[day] += max(0, t.transaction_amount)  # Thu nhập tháng trước
         expense_previous[day] += abs(min(0, t.transaction_amount))  # Chi tiêu tháng trước
 
@@ -153,11 +166,12 @@ def fin_dashboard():
         "fin_dashboard.html",
         revenue_data=revenue_data,
         expense_data=expense_data,
-        transactions=transactions_current,  # ✅ Truyền danh sách giao dịch
-        total_income=total_income,
-        total_expense=total_expense,
-        labels=days
+        transactions=transactions_current,
+        labels=days,
+        selected_start_date=start_date.strftime("%Y-%m-%d"),
+        selected_end_date=end_date.strftime("%Y-%m-%d")
     )
+
 
 
 @app.route("/dashboard", methods=["GET", "POST"])
