@@ -1,0 +1,162 @@
+/* 📌 Tổng quan trang */
+body {
+  background-color: #001307; /* Màu nền đậm */
+  color: #e0e0e0; /* Màu chữ nhạt */
+  font-family: "Poppins", sans-serif;
+}
+
+/* 📌 Khối đăng ký */
+.register-box {
+  background: #1a3323;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  max-width: 1000px;
+  width: 100%;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.8s ease-in-out;
+  position: relative;
+  right: 55px;
+}
+
+/* 📌 Hiệu ứng xuất hiện */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 📌 Icon */
+.icon img {
+  width: 80px;
+  margin-bottom: 15px;
+  border-radius: 50%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease-in-out;
+}
+
+.icon img:hover {
+  transform: scale(1.1);
+}
+
+/* 📌 Ô nhập liệu */
+.form-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.form-control {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+/* 📌 Hiệu ứng focus */
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 8px #00ff99;
+}
+
+/* 📌 Placeholder đẹp hơn */
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  transition: 0.3s;
+}
+
+/* 📌 Placeholder mờ dần khi nhập */
+.form-control:focus::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* 📌 Nút đăng ký */
+.btn-dark {
+  background: linear-gradient(135deg, #081c12, #0f2a1b);
+  border: none;
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: 0.3s;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 📌 Hiệu ứng hover */
+.btn-dark:hover {
+  background: linear-gradient(135deg, #0f2a1b, #00ff99);
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 12px rgba(0, 255, 153, 0.3);
+}
+
+/* 📌 Liên kết */
+a {
+  color: #00ff99;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 📌 Hiệu ứng khi nhấn */
+.btn-dark:active {
+  transform: scale(0.98);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 📌 Cột trái (Hình minh họa) */
+.left-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  flex-direction: column; /* Xếp hình theo chiều dọc */
+  position: relative;
+  top: 50px;
+  right: 100px;
+}
+
+/* 📌 Ảnh minh họa */
+.illustration-img {
+  width: 90%;
+  max-width: 350px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  scale: 1.4;
+  transition: transform 0.5s ease-in-out; /* Tạo hiệu ứng mượt */
+}
+
+/* Hiệu ứng zoom-in khi hover */
+.illustration-img:hover {
+  transform: scale(1.1); /* Phóng to 10% */
+}
+
+.alert-register {
+  position: relative;
+  top: -58px;
+  right: 103px;
+}
+
+.trans-register {
+  position: relative;
+  top: -113px;
+}
+
+.container {
+  margin-right: 15px;
+}
