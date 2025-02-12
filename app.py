@@ -51,22 +51,31 @@ def register():
 @login_required
 def add_transaction():
     form = TransactionForm()
+    categories = Category.query.filter_by(user_id=current_user.id).all()  # 🟢 Lấy danh sách danh mục có sẵn
 
     if form.validate_on_submit():
-        category_name = form.category_name.data.strip().lower()
-        transaction_date = datetime.combine(form.transaction_date.data, datetime.min.time())  # Kết hợp ngày và thời gian (00:00:00)
+        # Lấy dữ liệu từ form
+        selected_category = request.form.get("category_name")
+        new_category_name = request.form.get("new_category", "").strip()
+
+        # Xác định danh mục cuối cùng
+        category_name = new_category_name if selected_category == "other" else selected_category
+
+        transaction_date = datetime.combine(form.transaction_date.data, datetime.min.time())
         transaction_type = form.transaction_type.data
         transaction_amount = abs(form.transaction_amount.data)
 
         if transaction_type == "expense":
             transaction_amount = -transaction_amount
 
+        # Kiểm tra xem danh mục có tồn tại chưa
         category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
         if not category:
             category = Category(name=category_name, user_id=current_user.id)
             db.session.add(category)
             db.session.commit()
 
+        # Tạo giao dịch mới
         new_transaction = Transaction(
             transaction_date=transaction_date,
             transaction_type=transaction_type,
@@ -80,7 +89,7 @@ def add_transaction():
 
         return redirect(url_for("fin_dashboard"))
 
-    return render_template("add_transaction.html", form=form)
+    return render_template("add_transaction.html", form=form, categories=categories)
 
 
 @app.route("/fin_dashboard", methods=["GET", "POST"])

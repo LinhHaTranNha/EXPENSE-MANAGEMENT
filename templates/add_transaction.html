@@ -1,15 +1,46 @@
 <form method="POST">
     {{ form.hidden_tag() }}
+
     <p>{{ form.transaction_date.label }} {{ form.transaction_date }}</p>
     <p>{{ form.transaction_type.label }} {{ form.transaction_type }}</p>
-    <p>{{ form.category_name.label }} {{ form.category_name }}</p>
+
+    <p>
+        <label for="categorySelect">Category</label>
+        <select id="categorySelect" name="category_name">
+            <option value="" disabled selected>-- Select a category --</option>
+            {% for category in categories %}
+                <option value="{{ category.name }}">{{ category.name }}</option>
+            {% endfor %}
+            <option value="other">Other (Enter new category)</option>
+        </select>
+    </p>
+
+    <!-- 🟢 Input nhập danh mục mới (ẩn mặc định) -->
+    <p id="newCategoryContainer" style="display: none;">
+        <label for="newCategory">New Category</label>
+        <input type="text" id="newCategory" name="new_category">
+    </p>
+
     <p>{{ form.transaction_amount.label }} {{ form.transaction_amount }}</p>
     <p>{{ form.submit }}</p>
 </form>
 
 <script>
-    // 🟢 Hiển thị Date Picker cho transaction_date
     document.addEventListener("DOMContentLoaded", function() {
+        let categorySelect = document.getElementById("categorySelect");
+        let newCategoryContainer = document.getElementById("newCategoryContainer");
+        let newCategoryInput = document.getElementById("newCategory");
+
+        categorySelect.addEventListener("change", function() {
+            if (this.value === "other") {
+                newCategoryContainer.style.display = "block";
+                newCategoryInput.setAttribute("required", "required");
+            } else {
+                newCategoryContainer.style.display = "none";
+                newCategoryInput.removeAttribute("required");
+            }
+        });
+
         document.querySelector("[name=transaction_date]").setAttribute("type", "date");
     });
 </script>
