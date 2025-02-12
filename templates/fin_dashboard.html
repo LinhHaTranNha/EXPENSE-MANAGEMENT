@@ -47,83 +47,38 @@
           </div>
         </div>
 
-        <!-- Transaction History card mb-4 mb-4 mb-4 -->
-        <div class="col-lg-8 col-md-6 col-sm-12">
-          <div class="card mb-4" style="grid-column: span 2">
-            <h2>TRANSACTION HISTORY</h2>
-            <div class="table-container">
-              <table>
-                <thead>
+       <!-- 🟢 Transaction History Table -->
+<div class="col-lg-8 col-md-6 col-sm-12">
+  <div class="card mb-4" style="grid-column: span 2">
+      <h2>TRANSACTION HISTORY</h2>
+      <div class="table-container">
+          <table>
+              <thead>
                   <tr>
-                    <th>Description</th>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Amount</th>
+                      <th>Description</th>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Amount</th>
                   </tr>
-                </thead>
-                <tbody>
+              </thead>
+              <tbody>
+                  {% for transaction in transactions %}
                   <tr>
-                    <td>Breakfast</td>
-                    <td>10/02/2025</td>
-                    <td>Expense</td>
-                    <td>33,000</td>
+                      <td>{{ transaction.category.name }}</td>
+                      <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
+                      <td>{{ transaction.transaction_type }}</td>
+                      <td style="color: '{{ 'red' if transaction.transaction_type == 'expense' else 'green' }}';">
+                        {{ "{:,.0f}".format(transaction.transaction_amount) }} VND
+                    </td>                              
                   </tr>
-                  <tr>
-                    <td>Dinner</td>
-                    <td>09/02/2025</td>
-                    <td>Expense</td>
-                    <td>33,000</td>
-                  </tr>
-                  <tr>
-                    <td>Tuition Fee</td>
-                    <td>09/02/2025</td>
-                    <td>Expense</td>
-                    <td>500,000</td>
-                  </tr>
-                  <tr>
-                    <td>Grocery</td>
-                    <td>09/02/2025</td>
-                    <td>Expense</td>
-                    <td>500,000</td>
-                  </tr>
-                  <tr>
-                    <td>Salary</td>
-                    <td>09/02/2025</td>
-                    <td>Income</td>
-                    <td>10,000,000</td>
-                  </tr>
-                  <tr>
-                    <td>Salary</td>
-                    <td>09/02/2025</td>
-                    <td>Income</td>
-                    <td>10,000,000</td>
-                  </tr>
-                  <tr>
-                    <td>Salary</td>
-                    <td>09/02/2025</td>
-                    <td>Income</td>
-                    <td>10,000,000</td>
-                  </tr>
-                  <tr>
-                    <td>Salary</td>
-                    <td>09/02/2025</td>
-                    <td>Income</td>
-                    <td>10,000,000</td>
-                  </tr>
-                  <tr>
-                    <td>Salary</td>
-                    <td>09/02/2025</td>
-                    <td>Income</td>
-                    <td>10,000,000</td>
-                  </tr>
-                  <!-- Thêm dữ liệu vào đây -->
-                </tbody>
-              </table>
-            </div>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>
+      <button class="export-btn">Exp to xlsx</button>
+  </div>
+</div>
 
-            <button class="export-btn">Exp to xlsx</button>
-          </div>
-        </div>
 
         <!-- Saving card mb-4 mb-4 mb-4 -->
         <div class="col-lg-4 col-md-6 col-sm-12">

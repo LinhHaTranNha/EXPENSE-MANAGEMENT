@@ -147,6 +147,7 @@ def fin_dashboard():
         "fin_dashboard.html",
         revenue_data=revenue_data,
         expense_data=expense_data,
+        transactions=transactions_current,  # ✅ Truyền danh sách giao dịch
         total_income=total_income,
         total_expense=total_expense,
         labels=days
