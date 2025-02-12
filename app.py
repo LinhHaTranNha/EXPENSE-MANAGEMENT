@@ -87,31 +87,41 @@ def add_transaction():
 @login_required
 def fin_dashboard():
     today = datetime.today()
+    current_day = today.day  # 🟢 Lấy ngày hiện tại (VD: 12)
     current_month = today.month
-    previous_month = (today - timedelta(days=30)).month
     current_year = today.year
 
-    # 🟢 Lấy giao dịch tháng hiện tại và tháng trước
+    # 🟢 Xác định tháng trước chính xác
+    if current_month == 1:
+        previous_month = 12
+        previous_year = current_year - 1
+    else:
+        previous_month = current_month - 1
+        previous_year = current_year
+
+    # 🟢 Lấy tất cả giao dịch trong tháng hiện tại và tháng trước (tính tới ngày hiện tại)
     transactions_current = Transaction.query.filter(
         Transaction.user_id == current_user.id,
         extract('month', Transaction.transaction_date) == current_month,
-        extract('year', Transaction.transaction_date) == current_year
+        extract('year', Transaction.transaction_date) == current_year,
+        extract('day', Transaction.transaction_date) <= current_day  # 🔥 Chỉ lấy tới ngày hiện tại
     ).all()
 
     transactions_previous = Transaction.query.filter(
         Transaction.user_id == current_user.id,
         extract('month', Transaction.transaction_date) == previous_month,
-        extract('year', Transaction.transaction_date) == current_year
+        extract('year', Transaction.transaction_date) == previous_year,
+        extract('day', Transaction.transaction_date) <= current_day  # 🔥 Chỉ lấy tới ngày hiện tại
     ).all()
 
-    # 🟢 Tạo danh sách ngày từ 1 -> ngày hiện tại (để làm nhãn trục X)
-    days = list(range(1, today.day + 1))
+    # 🟢 Tạo danh sách ngày từ 1 → ngày hiện tại
+    days = list(range(1, current_day + 1))
 
     # 🟢 Tổng hợp thu nhập và chi tiêu của tháng hiện tại
     total_income = sum(t.transaction_amount for t in transactions_current if t.transaction_amount > 0)
     total_expense = abs(sum(t.transaction_amount for t in transactions_current if t.transaction_amount < 0))
 
-    # 🟢 Tạo dict lưu tổng income và expense theo từng ngày
+    # 🟢 Tạo dictionary lưu tổng income và expense theo từng ngày (chỉ từ 1 → ngày hiện tại)
     revenue_current = {day: 0 for day in days}
     expense_current = {day: 0 for day in days}
     revenue_previous = {day: 0 for day in days}
@@ -120,17 +130,13 @@ def fin_dashboard():
     # 🟢 Duyệt qua giao dịch để tổng hợp dữ liệu từng ngày
     for t in transactions_current:
         day = t.transaction_date.day
-        if t.transaction_amount > 0:
-            revenue_current[day] += t.transaction_amount
-        else:
-            expense_current[day] += abs(t.transaction_amount)
+        revenue_current[day] += max(0, t.transaction_amount)  # Thu nhập
+        expense_current[day] += abs(min(0, t.transaction_amount))  # Chi tiêu
 
     for t in transactions_previous:
         day = t.transaction_date.day
-        if t.transaction_amount > 0:
-            revenue_previous[day] += t.transaction_amount
-        else:
-            expense_previous[day] += abs(t.transaction_amount)
+        revenue_previous[day] += max(0, t.transaction_amount)  # Thu nhập tháng trước
+        expense_previous[day] += abs(min(0, t.transaction_amount))  # Chi tiêu tháng trước
 
     # 🟢 Chuyển dữ liệu thành danh sách để hiển thị trên biểu đồ
     revenue_data = {
