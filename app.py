@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request
 from database import db, app
-from models import User, Expense, Transaction, Category
+from models import User, Expense, Transaction, Category, Goal
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
@@ -223,6 +223,23 @@ def add_expense():
         db.session.add(new_expense)
         db.session.commit()
     return redirect(url_for("dashboard"))
+
+@app.route("/set_goal", methods=["POST"])
+@login_required
+def set_goal():
+    goal_amount = request.form.get("goal_amount", type=float)
+
+    if goal_amount is not None and goal_amount > 0:
+        goal = Goal.query.filter_by(user_id=current_user.id).first()
+        if goal:
+            goal.goal_amount = goal_amount  # Cập nhật mục tiêu
+        else:
+            goal = Goal(user_id=current_user.id, goal_amount=goal_amount)
+            db.session.add(goal)
+        db.session.commit()
+
+    return redirect(url_for("fin_dashboard"))
+
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():

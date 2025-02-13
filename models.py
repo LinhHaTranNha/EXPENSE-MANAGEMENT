@@ -28,3 +28,11 @@ class Transaction(db.Model):
 
     # 🟢 Mối quan hệ với bảng Category
     category = db.relationship("Category", backref="transactions")
+
+class Goal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    goal_amount = db.Column(db.Float, nullable=False)  # Số tiền mục tiêu tiết kiệm
+
+    # 🔥 Liên kết với User
+    user = db.relationship("User", backref=db.backref("goal", uselist=False))
