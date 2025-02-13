@@ -119,7 +119,7 @@
 
             <!-- Progress Bar -->
             <div class="progress-container">
-              <div class="progress-bar" id="progress-bar" style="width: 80%"></div>
+              <div class="progress-bar" id="progress-bar" style="width: 80%; background: #4CAF50;"></div>
             </div>
 
             <!-- Current Savings -->
@@ -149,7 +149,7 @@
           <span id="max-amount" style="color: red;">{{ total_income_today }}</span> VND
         </p>
         <div class="progress-container">
-          <div class="progress-bar" id="progress-bar"></div>
+          <div class="progress-bar" id="progress-bar-alert"></div>
           <span class="coin-icon">💰</span>
         </div>
         <p id="alert-message" class="alert-warning"></p>
@@ -343,7 +343,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       let maxAmountElement = document.getElementById("max-amount");
-      let progressBar = document.getElementById("progress-bar");
+      let progressBar = document.getElementById("progress-bar-alert");
       let alertMessage = document.getElementById("alert-message");
       let overLimitMessage = document.getElementById("over-limit-message");
 
