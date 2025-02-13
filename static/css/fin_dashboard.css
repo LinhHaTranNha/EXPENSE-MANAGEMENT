@@ -418,3 +418,32 @@ button.apply-btn:hover {
   margin-top: 10px;
   text-align: center;
 }
+
+
+/* 📌 Tùy chỉnh thanh cuộn cho trình duyệt Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px; /* Độ rộng thanh cuộn */
+}
+
+/* 📌 Track (Nền của thanh cuộn) */
+::-webkit-scrollbar-track {
+  background: #1e2b24; /* Màu nền tối */
+  border-radius: 10px; /* Bo góc */
+}
+
+/* 📌 Thanh kéo */
+::-webkit-scrollbar-thumb {
+  background: #4caf50; /* Màu xanh lá giống button */
+  border-radius: 10px; /* Bo góc thanh cuộn */
+}
+
+/* 📌 Hiệu ứng hover khi rê chuột vào thanh kéo */
+::-webkit-scrollbar-thumb:hover {
+  background: #45a049; /* Đậm hơn khi hover */
+}
+
+/* 📌 Thanh cuộn cho phần dropdown */
+select {
+  scrollbar-width: thin; /* Firefox hỗ trợ */
+  scrollbar-color: #4caf50 #1e2b24; /* Màu kéo và nền */
+}
