@@ -4,7 +4,7 @@ from models import User, Expense, Transaction, Category, Goal
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
-from sqlalchemy import extract
+from sqlalchemy import func, cast, Date, extract
 
 app.config['SECRET_KEY'] = 'linh31052004'
 
@@ -209,6 +209,30 @@ def fin_dashboard():
         "values": list(category_summary.values())  # Tổng chi tiêu từng danh mục
     }
 
+    today = datetime.today().date()
+
+    # 🟢 Tính tổng thu nhập (income) trong ngày (Mức tối đa)
+    total_income_today = db.session.query(func.sum(Transaction.transaction_amount)).filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_type == "income",
+        cast(Transaction.transaction_date, Date) == today
+    ).scalar() or 0  # Nếu None, gán 0
+
+    # 🟢 Tính tổng chi tiêu (expense) trong ngày (Mức đã tiêu)
+    total_expense_today = db.session.query(func.sum(Transaction.transaction_amount)).filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_type == "expense",
+        cast(Transaction.transaction_date, Date) == today
+    ).scalar() or 0  # Nếu None, gán 0
+
+     # ✅ Chuyển Expense thành số dương nếu cần
+    total_expense_today = abs(total_expense_today)
+
+    # 🛑 Tính số tiền vượt quá (nếu có)
+    over_limit_amount = max(0, total_expense_today - total_income_today)
+
+    print(f"DEBUG: Income Today = {total_income_today}, Expense Today = {total_expense_today}, Over Limit = {over_limit_amount}")
+
     return render_template(
         "fin_dashboard.html",
         revenue_data=revenue_data,
@@ -217,7 +241,10 @@ def fin_dashboard():
         summary_data=summary_data,  # ✅ Gửi dữ liệu xuống frontend
         labels=days,
         selected_start_date=start_date.strftime("%Y-%m-%d"),
-        selected_end_date=end_date.strftime("%Y-%m-%d")
+        selected_end_date=end_date.strftime("%Y-%m-%d"),
+        total_income_today=total_income_today,
+        total_expense_today=total_expense_today,
+        over_limit_amount=over_limit_amount  # Gửi số tiền vượt quá xuống frontend
     )
 
 

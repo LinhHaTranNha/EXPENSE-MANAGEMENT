@@ -338,3 +338,83 @@ button.apply-btn:hover {
       margin-bottom: 10px; /* Tạo khoảng cách giữa các phần tử trên mobile */
   }
 }
+
+
+/* 📌 Tổng quan Alert Card */
+.alert-container {
+  background-color: #11231e;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0px 5px 15px rgba(0, 255, 153, 0.3);
+  color: #fff;
+  width: 100%;
+  margin: auto;
+  width: 100%;
+  margin: 0 20px;
+}
+
+/* 📌 Tiêu đề */
+.alert-container h2 {
+  font-size: 26px;
+  color: #00ff99;
+  margin-bottom: 10px;
+}
+
+/* 📌 Mô tả mức chi tiêu */
+.alert-text {
+  font-size: 18px;
+  color: #e0e0e0;
+}
+
+.alert-text span {
+  color: red;
+  font-weight: bold;
+}
+
+/* 📌 Thanh progress */
+.progress-container {
+  width: 100%;
+  height: 20px;
+  background-color: #333;
+  border-radius: 10px;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  /* background-color: #00ff99; Mặc định xanh */
+  border-radius: 10px;
+  transition: width 0.5s ease-in-out;
+}
+
+/* 📌 Icon đồng xu */
+.coin-icon {
+  position: absolute;
+  right: 5px;
+  top: -15px;
+  font-size: 30px;
+}
+
+/* 📌 Cảnh báo khi chi tiêu vượt quá giới hạn */
+.alert-warning {
+  font-size: 18px;
+  font-weight: bold;
+  color: red;
+  display: none;
+  margin-top: 10px;
+}
+
+
+/* 📌 Cảnh báo vượt mức */
+.alert-exceed {
+  font-size: 18px;
+  font-weight: bold;
+  color: red;
+  display: none;
+  margin-top: 10px;
+  text-align: center;
+}

@@ -141,19 +141,19 @@
         </div>
       </div>
 
-      <div class="col-12">
-        <div class="row">
-          <div class="col-12">
-            <!-- Alert card mb-4 mb-4 mb-4 -->
-            <div class="card mb-4">
-              <h2>ALERT</h2>
-              <p class="alert">
-                Maximum transaction amount for a day: 100,000 VND
-              </p>
-              <p>You reached the maximum!! No more expense, please!!</p>
-            </div>
-          </div>
+      <!-- ALERT  -->
+      <div class="alert-container">
+        <h2>ALERT</h2>
+        <p class="alert-text">
+          Maximum transaction amount for a day:
+          <span id="max-amount" style="color: red;">{{ total_income_today }}</span> VND
+        </p>
+        <div class="progress-container">
+          <div class="progress-bar" id="progress-bar"></div>
+          <span class="coin-icon">💰</span>
         </div>
+        <p id="alert-message" class="alert-warning"></p>
+        <p id="over-limit-message" class="alert-exceed" style="display: none;"></p> <!-- ✅ Chắc chắn có thẻ này -->
       </div>
     </div>
   </div>
@@ -340,6 +340,56 @@
       }
     });
 
+
+    document.addEventListener("DOMContentLoaded", function () {
+      let maxAmountElement = document.getElementById("max-amount");
+      let progressBar = document.getElementById("progress-bar");
+      let alertMessage = document.getElementById("alert-message");
+      let overLimitMessage = document.getElementById("over-limit-message");
+
+      // 📌 Lấy dữ liệu từ Flask
+      let maxAmount = parseFloat("{{ total_income_today }}") || 0;
+      let currentExpense = parseFloat("{{ total_expense_today }}") || 0;
+      let overLimit = parseFloat("{{ over_limit_amount }}") || 0;
+
+      console.log(`DEBUG: Max = ${maxAmount}, Expense = ${currentExpense}, Over Limit = ${overLimit}`);
+
+      // 📌 Cập nhật số tiền tối đa (income của ngày)
+      maxAmountElement.textContent = maxAmount.toLocaleString("en-US") + " VND";
+
+      // 📌 Tính phần trăm chi tiêu
+      let expensePercent = maxAmount > 0 ? (currentExpense / maxAmount) * 100 : 0;
+
+      // 📌 Cập nhật thanh progress
+      progressBar.style.width = Math.min(expensePercent, 100) + "%";
+
+      // 📌 Nếu không có income, ẩn progress bar và hiển thị thông báo khác
+      if (maxAmount === 0) {
+        progressBar.style.display = "none";
+        alertMessage.textContent = "⚠️ No income recorded today!";
+        alertMessage.style.display = "block";
+        alertMessage.style.color = "orange";
+        overLimitMessage.style.display = "none";
+      } else if (currentExpense >= maxAmount) {
+        progressBar.style.backgroundColor = "red"; // Thanh đỏ cảnh báo
+        alertMessage.textContent = "⚠️ You reached the maximum!! No more expense, please!!";
+        alertMessage.style.display = "block";
+
+        // 📌 Hiển thị số tiền vượt quá (nếu có)
+        if (overLimit > 0) {
+          overLimitMessage.textContent = `🔥 You exceeded the limit by ${overLimit.toLocaleString("en-US")} VND!`;
+          overLimitMessage.style.color = "red";
+          overLimitMessage.style.fontWeight = "bold";
+          overLimitMessage.style.display = "block";
+        } else {
+          overLimitMessage.style.display = "none";
+        }
+      } else {
+        progressBar.style.backgroundColor = "#00ff99"; // Màu xanh nếu chưa vượt mức
+        alertMessage.style.display = "none";
+        overLimitMessage.style.display = "none";
+      }
+    });
 
   </script>
 
