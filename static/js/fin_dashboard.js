@@ -1,24 +1,37 @@
-// SAVING GOAL
-
 document.addEventListener("DOMContentLoaded", function () {
   const goalInput = document.getElementById("saving-goal");
   const saveButton = document.getElementById("save-goal");
   const goalAmountSpan = document.getElementById("goal-amount");
   const progressBar = document.getElementById("progress-bar");
-  const currentSaving = 5000000; // Giá trị tiết kiệm hiện tại
-  let savingsGoal = 10000000; // Mục tiêu mặc định
-
   const notReachedMsg = document.getElementById("not-reached");
   const reachedMsg = document.getElementById("reached");
 
-  /** 📌 Hàm định dạng số có dấu phẩy */
-  function formatCurrency(value) {
-    return value.toLocaleString("en-US") + " VND"; // Định dạng chuẩn
+  let currentSaving = 5000000; // Giá trị tiết kiệm hiện tại
+  let savingsGoal = 10000000; // Mặc định, sẽ được cập nhật từ back-end
+
+  /** 📌 Lấy dữ liệu từ back-end */
+  async function fetchGoal() {
+    try {
+      let response = await fetch("/get_goal");
+      let data = await response.json();
+      savingsGoal = data.goal_amount;
+      goalAmountSpan.textContent = formatCurrency(savingsGoal);
+      updateDisplay();
+    } catch (error) {
+      console.error("Lỗi khi lấy mục tiêu tiết kiệm:", error);
+    }
   }
 
-  /** 📌 Hàm cập nhật giao diện */
+  /** 📌 Hàm định dạng số */
+  function formatCurrency(value) {
+    return value.toLocaleString("en-US") + " VND";
+  }
+
+  /** 📌 Cập nhật UI */
   function updateDisplay() {
-    console.log(`Current Saving: ${currentSaving}, Goal: ${savingsGoal}`);
+    let progress = (currentSaving / savingsGoal) * 100;
+    progressBar.style.width = `${Math.min(progress, 100)}%`;
+    progressBar.textContent = `${Math.min(progress, 100).toFixed(0)}%`;
 
     if (currentSaving >= savingsGoal) {
       reachedMsg.style.display = "block";
@@ -27,32 +40,31 @@ document.addEventListener("DOMContentLoaded", function () {
       reachedMsg.style.display = "none";
       notReachedMsg.style.display = "block";
     }
-
-    let progress = (currentSaving / savingsGoal) * 100;
-    progressBar.style.width = `${Math.min(progress, 100)}%`;
-    progressBar.textContent = `${Math.min(progress, 100).toFixed(0)}%`;
   }
 
-  /** 📌 Cập nhật tiến trình ngay khi nhập số */
+  /** 📌 Cập nhật khi nhập số */
   goalInput.addEventListener("input", function () {
-    let rawValue = goalInput.value.replace(/,/g, "").replace(/\D/g, ""); // Loại bỏ dấu `,` và ký tự không phải số
-    if (rawValue === "") {
-      savingsGoal = 1; // Tránh chia cho 0
-    } else {
-      savingsGoal = parseInt(rawValue, 10);
+    let rawValue = goalInput.value.replace(/,/g, "").replace(/\D/g, "");
+    savingsGoal = rawValue === "" ? 1 : parseInt(rawValue, 10);
+    goalInput.value = savingsGoal.toLocaleString("en-US");
+    goalAmountSpan.textContent = formatCurrency(savingsGoal);
+    updateDisplay();
+  });
+
+  /** 📌 Lưu dữ liệu lên back-end */
+  saveButton.addEventListener("click", async function () {
+    try {
+      let response = await fetch("/set_goal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goal_amount: savingsGoal }),
+      });
+      let result = await response.json();
+      alert(result.message);
+    } catch (error) {
+      console.error("Lỗi khi lưu mục tiêu:", error);
     }
-
-    goalInput.value = parseInt(rawValue, 10).toLocaleString("en-US"); // Hiển thị số có dấu `,`
-    goalAmountSpan.textContent = formatCurrency(savingsGoal); // Cập nhật số mục tiêu ngay lập tức
-    updateDisplay(); // Cập nhật tiến trình ngay
   });
 
-  /** 📌 Xử lý khi nhấn "Save Goal" */
-  saveButton.addEventListener("click", function () {
-    alert("✅ Mục tiêu tiết kiệm đã được lưu!");
-  });
-
-  updateDisplay(); // Chạy khi trang tải xong
+  fetchGoal(); // 📌 Gọi khi trang tải xong
 });
-
-// END SAVING GOAL
