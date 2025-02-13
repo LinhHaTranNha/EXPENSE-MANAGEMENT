@@ -373,7 +373,7 @@ def export_expense():
     current_month = today.month
     current_year = today.year
 
-    # 🟢 Xác định tháng trước chính xác
+    # 🔵 Xác định tháng trước
     if current_month == 1:
         previous_month = 12
         previous_year = current_year - 1
@@ -381,13 +381,9 @@ def export_expense():
         previous_month = current_month - 1
         previous_year = current_year
 
-    # 🟢 Tạo danh sách ngày từ 1 → cuối tháng (để đảm bảo xuất đủ)
-    days_in_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
-    days = [datetime(current_year, current_month, day).date() for day in range(1, days_in_month.day + 1)]
-
-    # 🟢 Truy vấn tổng chi tiêu tháng này theo ngày
+    # 🟢 Truy vấn tổng chi tiêu của tháng hiện tại
     expense_current = db.session.query(
-        Transaction.transaction_date.label("Date"),
+        Transaction.transaction_date,
         func.sum(Transaction.transaction_amount).label("Current Month Expense")
     ).filter(
         Transaction.user_id == current_user.id,
@@ -396,9 +392,9 @@ def export_expense():
         extract("year", Transaction.transaction_date) == current_year
     ).group_by(Transaction.transaction_date).all()
 
-    # 🟢 Truy vấn tổng chi tiêu tháng trước theo ngày
+    # 🟢 Truy vấn tổng chi tiêu của tháng trước
     expense_previous = db.session.query(
-        Transaction.transaction_date.label("Date"),
+        Transaction.transaction_date,
         func.sum(Transaction.transaction_amount).label("Previous Month Expense")
     ).filter(
         Transaction.user_id == current_user.id,
@@ -407,32 +403,34 @@ def export_expense():
         extract("year", Transaction.transaction_date) == previous_year
     ).group_by(Transaction.transaction_date).all()
 
-    # 🟢 Chuyển dữ liệu thành từ điển để dễ truy cập
-    expense_current_dict = {e.Date: e[1] for e in expense_current}
-    expense_previous_dict = {e.Date: e[1] for e in expense_previous}
+    # 🟢 Chuyển kết quả thành DataFrame
+    df_current = pd.DataFrame(expense_current, columns=["Date", "Current Month Expense"])
+    df_previous = pd.DataFrame(expense_previous, columns=["Date", "Previous Month Expense"])
 
-    # 🟢 Tạo DataFrame với đầy đủ ngày
-    data = {
-        "Date": days,
-        "Current Month Expense": [expense_current_dict.get(day, 0) for day in days],
-        "Previous Month Expense": [expense_previous_dict.get(day, 0) for day in days],
-    }
+    # 🟢 Điền giá trị 0 cho ngày không có giao dịch
+    all_dates = pd.date_range(start=today.replace(day=1), end=today)
+    df_current = df_current.set_index("Date").reindex(all_dates, fill_value=0).reset_index().rename(columns={"index": "Date"})
+    df_previous = df_previous.set_index("Date").reindex(all_dates, fill_value=0).reset_index().rename(columns={"index": "Date"})
 
-    df = pd.DataFrame(data)
+    # 🟢 Gộp hai bảng để so sánh chi tiêu giữa tháng này và tháng trước
+    df = pd.merge(df_current, df_previous, on="Date", how="outer").fillna(0)
 
-    # 🟢 Tạo cột chênh lệch (%)
-    df["Change (%)"] = ((df["Current Month Expense"] - df["Previous Month Expense"]) /
-                        df["Previous Month Expense"].replace(0, np.nan) * 100).round(2).fillna(0).astype(str) + " %"
+    # 🟢 Tính phần trăm thay đổi
+    df["Change (%)"] = df.apply(
+        lambda row: ((row["Current Month Expense"] - row["Previous Month Expense"]) / row["Previous Month Expense"] * 100)
+        if row["Previous Month Expense"] != 0 else 0,
+        axis=1
+    ).round(2).astype(str) + " %"
 
     # 🟢 Xuất ra file Excel
     output = BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False, sheet_name="Expense Comparison")
+        df.to_excel(writer, index=False)
 
     output.seek(0)
 
-    return send_file(output, as_attachment=True, download_name="Expense_Comparison.xlsx",
-                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    return send_file(output, as_attachment=True, download_name="Expense_Comparison.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 
 
 
