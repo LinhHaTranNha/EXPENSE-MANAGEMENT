@@ -15,16 +15,16 @@ class Expense(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.Unicode(100), nullable=False)  # 🔥 Đổi String thành Unicode
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime, nullable=False)
-    transaction_type = db.Column(db.String(20), nullable=False)  # "income" hoặc "expense"
+    transaction_type = db.Column(db.Unicode(20), nullable=False)  # 🔥 Unicode cho transaction_type nếu cần
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    transaction_amount = db.Column(db.Float, nullable=False)  # Âm nếu là "expense", dương nếu là "income"
+    transaction_amount = db.Column(db.Float, nullable=False)
 
     # 🟢 Mối quan hệ với bảng Category
     category = db.relationship("Category", backref="transactions")
