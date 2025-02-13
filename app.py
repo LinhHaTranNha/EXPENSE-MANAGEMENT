@@ -171,11 +171,25 @@ def fin_dashboard():
         "previous": [expense_previous[day] for day in days]
     }
 
+        # 🟢 Tổng hợp chi tiêu theo danh mục (Chỉ tính Expense)
+    category_summary = {}
+    for t in transactions_current:
+        if t.transaction_type == "expense":
+            category_name = t.category.name
+            category_summary[category_name] = category_summary.get(category_name, 0) + abs(t.transaction_amount)
+
+    # 🟢 Chuyển dữ liệu thành danh sách JSON để render trong frontend
+    summary_data = {
+        "labels": list(category_summary.keys()),  # Danh sách danh mục
+        "values": list(category_summary.values())  # Tổng chi tiêu từng danh mục
+    }
+
     return render_template(
         "fin_dashboard.html",
         revenue_data=revenue_data,
         expense_data=expense_data,
         transactions=transactions_current,
+        summary_data=summary_data,  # ✅ Gửi dữ liệu xuống frontend
         labels=days,
         selected_start_date=start_date.strftime("%Y-%m-%d"),
         selected_end_date=end_date.strftime("%Y-%m-%d")
