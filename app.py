@@ -7,7 +7,9 @@ from datetime import datetime, timedelta
 from sqlalchemy import func, cast, Date, extract
 import pandas as pd
 from flask import send_file
+import numpy as np
 from io import BytesIO
+from sqlalchemy.sql import case
 
 app.config['SECRET_KEY'] = 'linh31052004'
 
@@ -324,43 +326,115 @@ def get_saving():
 @login_required
 def export_revenue():
     today = datetime.today().date()
-    
+    current_month = today.month
+    current_year = today.year
+
+    # 🟢 Truy vấn tổng thu nhập và chi tiêu theo ngày
     revenue = db.session.query(
-        Transaction.transaction_date, func.sum(Transaction.transaction_amount)
+        Transaction.transaction_date,
+        func.sum(
+            case(
+                (Transaction.transaction_type == "income", Transaction.transaction_amount),
+                else_=0
+            )
+        ).label("Total Income"),
+        func.sum(
+            case(
+                (Transaction.transaction_type == "expense", Transaction.transaction_amount),
+                else_=0
+            )
+        ).label("Total Expense")
     ).filter(
         Transaction.user_id == current_user.id,
-        Transaction.transaction_type == "income",
-        Transaction.transaction_date >= today.replace(day=1)  # Chỉ lấy trong tháng này
+        Transaction.transaction_date >= today.replace(day=1)  # Chỉ lấy dữ liệu tháng này
     ).group_by(Transaction.transaction_date).all()
 
-    df = pd.DataFrame(revenue, columns=["Date", "Income"])
-    
+    # 🟢 Chuyển kết quả thành DataFrame
+    df = pd.DataFrame(revenue, columns=["Date", "Income", "Expense"])
+
+    # 🟢 Điền giá trị 0 cho ngày không có giao dịch
+    df = df.set_index("Date").reindex(pd.date_range(start=today.replace(day=1), end=today), fill_value=0).reset_index()
+    df.rename(columns={"index": "Date"}, inplace=True)
+
+    # 🟢 Xuất ra file Excel
     output = BytesIO()
-    df.to_excel(output, index=False, engine='xlsxwriter')
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False)
+
     output.seek(0)
 
     return send_file(output, as_attachment=True, download_name="Revenue.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 
 @app.route("/export_expense", methods=["GET"])
 @login_required
 def export_expense():
     today = datetime.today().date()
-    
-    expense = db.session.query(
-        Transaction.transaction_date, func.sum(Transaction.transaction_amount)
+    current_month = today.month
+    current_year = today.year
+
+    # 🟢 Xác định tháng trước chính xác
+    if current_month == 1:
+        previous_month = 12
+        previous_year = current_year - 1
+    else:
+        previous_month = current_month - 1
+        previous_year = current_year
+
+    # 🟢 Tạo danh sách ngày từ 1 → cuối tháng (để đảm bảo xuất đủ)
+    days_in_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+    days = [datetime(current_year, current_month, day).date() for day in range(1, days_in_month.day + 1)]
+
+    # 🟢 Truy vấn tổng chi tiêu tháng này theo ngày
+    expense_current = db.session.query(
+        Transaction.transaction_date.label("Date"),
+        func.sum(Transaction.transaction_amount).label("Current Month Expense")
     ).filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_type == "expense",
-        Transaction.transaction_date >= today.replace(day=1)  # Chỉ lấy trong tháng này
+        extract("month", Transaction.transaction_date) == current_month,
+        extract("year", Transaction.transaction_date) == current_year
     ).group_by(Transaction.transaction_date).all()
 
-    df = pd.DataFrame(expense, columns=["Date", "Expense"])
-    
+    # 🟢 Truy vấn tổng chi tiêu tháng trước theo ngày
+    expense_previous = db.session.query(
+        Transaction.transaction_date.label("Date"),
+        func.sum(Transaction.transaction_amount).label("Previous Month Expense")
+    ).filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_type == "expense",
+        extract("month", Transaction.transaction_date) == previous_month,
+        extract("year", Transaction.transaction_date) == previous_year
+    ).group_by(Transaction.transaction_date).all()
+
+    # 🟢 Chuyển dữ liệu thành từ điển để dễ truy cập
+    expense_current_dict = {e.Date: e[1] for e in expense_current}
+    expense_previous_dict = {e.Date: e[1] for e in expense_previous}
+
+    # 🟢 Tạo DataFrame với đầy đủ ngày
+    data = {
+        "Date": days,
+        "Current Month Expense": [expense_current_dict.get(day, 0) for day in days],
+        "Previous Month Expense": [expense_previous_dict.get(day, 0) for day in days],
+    }
+
+    df = pd.DataFrame(data)
+
+    # 🟢 Tạo cột chênh lệch (%)
+    df["Change (%)"] = ((df["Current Month Expense"] - df["Previous Month Expense"]) /
+                        df["Previous Month Expense"].replace(0, np.nan) * 100).round(2).fillna(0).astype(str) + " %"
+
+    # 🟢 Xuất ra file Excel
     output = BytesIO()
-    df.to_excel(output, index=False, engine='xlsxwriter')
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="Expense Comparison")
+
     output.seek(0)
 
-    return send_file(output, as_attachment=True, download_name="Expense.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    return send_file(output, as_attachment=True, download_name="Expense_Comparison.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
 
 @app.route("/export_summary", methods=["GET"])
 @login_required
