@@ -1,0 +1,208 @@
+/* 📌 Tổng quan */
+body {
+  background-color: #001307; /* Màu nền tối */
+  color: #e0e0e0; /* Màu chữ sáng */
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+/* 📌 Container tổng */
+.transaction-container {
+  text-align: center;
+  width: 70%;
+}
+
+/* 📌 Tiêu đề */
+.transaction-container h2 {
+  color: #00ff99;
+  font-size: 28px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 📌 Mô tả */
+.transaction-container p {
+  color: #a0a0a0;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* 📌 Form */
+.transaction-form {
+  background: rgba(26, 51, 35, 0.9); /* Màu xanh đậm với hiệu ứng mờ */
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 255, 153, 0.3);
+  max-width: 500px;
+  width: 100%;
+  backdrop-filter: blur(10px);
+  text-align: left;
+  animation: fadeIn 0.8s ease-in-out;
+  margin: 0 auto;
+}
+
+/* 📌 Hiệu ứng xuất hiện */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 📌 Ô nhập liệu và select */
+.transaction-form p {
+  margin-bottom: 20px;
+}
+
+.transaction-form label {
+  font-weight: bold;
+  color: #00ff99; /* Màu xanh neon */
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* 📌 Input & Select */
+.transaction-form input,
+.transaction-form select {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+/* 📌 Hiệu ứng khi focus */
+.transaction-form input:focus,
+.transaction-form select:focus {
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 10px #00ff99;
+}
+
+/* 📌 Placeholder */
+.transaction-form input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  transition: 0.3s;
+}
+
+.transaction-form input:focus::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* 📌 Nút submit */
+.transaction-form button {
+  background: linear-gradient(135deg, #081c12, #0f2a1b);
+  border: none;
+  font-size: 18px;
+  padding: 14px;
+  border-radius: 8px;
+  transition: 0.3s;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0px 4px 10px rgba(0, 255, 153, 0.4);
+}
+
+/* 📌 Hiệu ứng hover */
+.transaction-form button:hover {
+  background: linear-gradient(135deg, #0f2a1b, #00ff99);
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 12px rgba(0, 255, 153, 0.5);
+}
+
+/* 📌 Hiệu ứng khi nhấn */
+.transaction-form button:active {
+  transform: scale(0.98);
+}
+
+/* 📌 Icon cho ô nhập liệu */
+.input-icon {
+  position: relative;
+}
+
+.input-icon input,
+.input-icon select {
+  padding-left: 40px; /* Dành chỗ cho icon */
+}
+
+.input-icon i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00ff99;
+}
+
+
+/* 📌 Căn chỉnh lại dropdown */
+.transaction-form select {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
+  transition: 0.3s;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+}
+
+/* 📌 Hiệu ứng focus khi chọn */
+.transaction-form select:focus {
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 10px #00ff99;
+}
+
+/* 📌 Thiết lập dropdown khi mở */
+.transaction-form select option {
+  background: #001307; /* Màu nền tối */
+  color: #e0e0e0;
+  padding: 10px;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 📌 Hiệu ứng khi hover vào option */
+.transaction-form select option:hover {
+  background: #0f2a1b;
+  color: #00ff99;
+}
+
+/* 📌 Định dạng màu cho các option đã disabled */
+.transaction-form select option:disabled {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* 📌 Định dạng border khi dropdown mở */
+.transaction-form select:active,
+.transaction-form select:focus {
+  box-shadow: 0 0 10px #00ff99;
+  border: 1px solid #00ff99;
+}
+
+/* 📌 Fix lỗi font chữ */
+.transaction-form select,
+.transaction-form select option {
+  font-family: "Poppins", sans-serif;
+}
+
+/* 📌 Thêm hiệu ứng hover cho toàn bộ select */
+.transaction-form select:hover {
+  background: rgba(255, 255, 255, 0.15);
+}

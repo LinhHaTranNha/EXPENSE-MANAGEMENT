@@ -1,38 +1,58 @@
-<form method="POST">
-    {{ form.hidden_tag() }}
+<link rel="stylesheet" href="../static/css/add_transaction.css" />
+<title>Add Transaction - FinMan</title>
+<link rel="icon" type="image/png" href="../static/image/money.jpg" />
 
-    <p>{{ form.transaction_date.label }} {{ form.transaction_date }}</p>
 
-    <!-- 🟢 Chọn loại giao dịch -->
-    <p>
-        <label for="transaction_type">Transaction Type</label>
-        <select id="transaction_type" name="transaction_type" required>
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-            <option value="saving">Saving</option> <!-- 🛑 Bổ sung tùy chọn Saving -->
-        </select>
-    </p>
+<div class="transaction-container">
+    <h2>Add Transaction</h2>
+    <p>Track your expenses and savings efficiently.</p>
 
-    <p>
-        <label for="categorySelect">Category</label>
-        <select id="categorySelect" name="category_name">
-            <option value="" disabled selected>-- Select a category --</option>
-            {% for category in categories %}
-            <option value="{{ category.name }}">{{ category.name }}</option>
-            {% endfor %}
-            <option value="other">Other (Enter new category)</option>
-        </select>
-    </p>
+    <form method="POST" class="transaction-form">
+        {{ form.hidden_tag() }}
 
-    <!-- 🟢 Input nhập danh mục mới (ẩn mặc định) -->
-    <p id="newCategoryContainer" style="display: none;">
-        <label for="newCategory">New Category</label>
-        <input type="text" id="newCategory" name="new_category">
-    </p>
+        <p class="input-icon">
+            <label for="transaction_date">Transaction Date</label>
+            <i class="fas fa-calendar-alt"></i>
+            {{ form.transaction_date(class="form-control") }}
+        </p>
 
-    <p>{{ form.transaction_amount.label }} {{ form.transaction_amount }}</p>
-    <p>{{ form.submit }}</p>
-</form>
+        <!-- 🟢 Chọn loại giao dịch -->
+        <p class="input-icon">
+            <label for="transaction_type">Transaction Type</label>
+            <i class="fas fa-exchange-alt"></i>
+            <select id="transaction_type" name="transaction_type" class="form-control" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+                <option value="saving">Saving</option>
+            </select>
+        </p>
+
+        <p class="input-icon">
+            <label for="categorySelect">Category</label>
+            <i class="fas fa-list-ul"></i>
+            <select id="categorySelect" name="category_name" class="form-control">
+                <option value="" disabled selected>-- Select a category --</option>
+                {% for category in categories %}
+                <option value="{{ category.name }}">{{ category.name }}</option>
+                {% endfor %}
+                <option value="other">Other (Enter new category)</option>
+            </select>
+        </p>
+
+        <p id="newCategoryContainer">
+            <label for="newCategory">New Category</label>
+            <input type="text" id="newCategory" name="new_category" class="form-control">
+        </p>
+
+        <p class="input-icon">
+            <label for="transaction_amount">Amount</label>
+            <i class="fas fa-money-bill-wave"></i>
+            {{ form.transaction_amount(class="form-control") }}
+        </p>
+
+        <p><button type="submit">Submit</button></p>
+    </form>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -51,5 +71,15 @@
         });
 
         document.querySelector("[name=transaction_date]").setAttribute("type", "date");
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let transactionDateInput = document.querySelector("[name=transaction_date]");
+
+        if (transactionDateInput) {
+            let today = new Date();
+            let formattedDate = today.toISOString().split("T")[0]; // Format YYYY-MM-DD
+            transactionDateInput.value = formattedDate;
+        }
     });
 </script>
