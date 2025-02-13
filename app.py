@@ -5,6 +5,9 @@ from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
 from sqlalchemy import func, cast, Date, extract
+import pandas as pd
+from flask import send_file
+from io import BytesIO
 
 app.config['SECRET_KEY'] = 'linh31052004'
 
@@ -315,6 +318,103 @@ def get_saving():
 
     print(f"✅ Tổng saving hiện tại: {total_saving} VND")
     return jsonify({"current_saving": total_saving})
+
+
+@app.route("/export_revenue", methods=["GET"])
+@login_required
+def export_revenue():
+    today = datetime.today().date()
+    
+    revenue = db.session.query(
+        Transaction.transaction_date, func.sum(Transaction.transaction_amount)
+    ).filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_type == "income",
+        Transaction.transaction_date >= today.replace(day=1)  # Chỉ lấy trong tháng này
+    ).group_by(Transaction.transaction_date).all()
+
+    df = pd.DataFrame(revenue, columns=["Date", "Income"])
+    
+    output = BytesIO()
+    df.to_excel(output, index=False, engine='xlsxwriter')
+    output.seek(0)
+
+    return send_file(output, as_attachment=True, download_name="Revenue.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+@app.route("/export_expense", methods=["GET"])
+@login_required
+def export_expense():
+    today = datetime.today().date()
+    
+    expense = db.session.query(
+        Transaction.transaction_date, func.sum(Transaction.transaction_amount)
+    ).filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_type == "expense",
+        Transaction.transaction_date >= today.replace(day=1)  # Chỉ lấy trong tháng này
+    ).group_by(Transaction.transaction_date).all()
+
+    df = pd.DataFrame(expense, columns=["Date", "Expense"])
+    
+    output = BytesIO()
+    df.to_excel(output, index=False, engine='xlsxwriter')
+    output.seek(0)
+
+    return send_file(output, as_attachment=True, download_name="Expense.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+@app.route("/export_summary", methods=["GET"])
+@login_required
+def export_summary():
+    today = datetime.today().date()
+
+    # 🟢 Truy vấn tổng chi tiêu theo từng danh mục
+    summary = db.session.query(
+        Category.name.label("Category"),
+        func.sum(Transaction.transaction_amount).label("Total Expense")
+    ).join(Category, Transaction.category_id == Category.id) .filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_type == "expense",
+        Transaction.transaction_date >= today.replace(day=1)  # Chỉ lấy dữ liệu trong tháng này
+    ).group_by(Category.name).all()
+
+    # 🟢 Chuyển kết quả thành DataFrame
+    df = pd.DataFrame(summary, columns=["Category", "Total Expense"])
+
+    # 🟢 Tính tổng chi tiêu của tất cả danh mục
+    total_expense = df["Total Expense"].sum()
+
+    # 🟢 Tạo cột "% Total Expense"
+    df["% Total Expense"] = (df["Total Expense"] / total_expense * 100).round(2).astype(str) + " %"
+
+    # 🟢 Xuất ra file Excel
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False)
+
+    output.seek(0)
+
+    return send_file(output, as_attachment=True, download_name="Expense_Summary.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+@app.route("/export_transactions", methods=["GET"])
+@login_required
+def export_transactions():
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+
+    data = [{
+        "Date": t.transaction_date.strftime("%d/%m/%Y"),
+        "Type": t.transaction_type,
+        "Category": t.category.name,
+        "Amount": t.transaction_amount
+    } for t in transactions]
+
+    df = pd.DataFrame(data)
+    
+    output = BytesIO()
+    df.to_excel(output, index=False, engine='xlsxwriter')
+    output.seek(0)
+
+    return send_file(output, as_attachment=True, download_name="Transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 
 
 # 🟢 Khởi tạo database trước khi chạy app
