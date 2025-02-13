@@ -206,3 +206,37 @@ body {
 .transaction-form select:hover {
   background: rgba(255, 255, 255, 0.15);
 }
+
+
+/* 📌 Container chứa nút */
+.back-dashboard-container {
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* 📌 Nút Back to Dashboard */
+.back-dashboard-btn {
+  background: linear-gradient(135deg, #FFA500, #FF8C00); /* Màu cam nổi bật */
+  color: white;
+  font-size: 16px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  display: inline-block;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 📌 Hover */
+.back-dashboard-btn:hover {
+  background: linear-gradient(135deg, #FF8C00, #FF7F00);
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 12px rgba(255, 140, 0, 0.3);
+}
+
+/* 📌 Active */
+.back-dashboard-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+}

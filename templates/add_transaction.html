@@ -7,6 +7,14 @@
     <h2>Add Transaction</h2>
     <p>Track your expenses and savings efficiently.</p>
 
+    <!-- 🟢 Nút Back to Dashboard -->
+    <div class="back-dashboard-container">
+        <a href="{{ url_for('fin_dashboard') }}" class="back-dashboard-btn">
+            ⬅️ Back to Dashboard
+        </a>
+    </div>
+
+
     <form method="POST" class="transaction-form">
         {{ form.hidden_tag() }}
 
