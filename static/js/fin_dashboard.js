@@ -5,20 +5,31 @@ document.addEventListener("DOMContentLoaded", function () {
   const progressBar = document.getElementById("progress-bar");
   const notReachedMsg = document.getElementById("not-reached");
   const reachedMsg = document.getElementById("reached");
+  const currentSavingText = document.querySelector("p strong"); // Thẻ hiển thị số tiền tiết kiệm
 
-  let currentSaving = 5000000; // Giá trị tiết kiệm hiện tại
-  let savingsGoal = 10000000; // Mặc định, sẽ được cập nhật từ back-end
+  let currentSaving = 0; // 🛑 Sẽ được cập nhật từ back-end
+  let savingsGoal = 10000000; // 🛑 Sẽ được cập nhật từ back-end
 
   /** 📌 Lấy dữ liệu từ back-end */
-  async function fetchGoal() {
+  async function fetchGoalAndSaving() {
     try {
-      let response = await fetch("/get_goal");
-      let data = await response.json();
-      savingsGoal = data.goal_amount;
+      let [goalResponse, savingResponse] = await Promise.all([
+        fetch("/get_goal"),
+        fetch("/get_saving"),
+      ]);
+
+      let goalData = await goalResponse.json();
+      let savingData = await savingResponse.json();
+
+      savingsGoal = goalData.goal_amount;
+      currentSaving = savingData.current_saving;
+
       goalAmountSpan.textContent = formatCurrency(savingsGoal);
+      currentSavingText.innerHTML = `<strong>Current Saving:</strong> ${formatCurrency(currentSaving)}`;
+
       updateDisplay();
     } catch (error) {
-      console.error("Lỗi khi lấy mục tiêu tiết kiệm:", error);
+      console.error("Lỗi khi lấy dữ liệu từ back-end:", error);
     }
   }
 
@@ -59,6 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ goal_amount: savingsGoal }),
       });
+
       let result = await response.json();
       alert(result.message);
     } catch (error) {
@@ -66,5 +78,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  fetchGoal(); // 📌 Gọi khi trang tải xong
+  fetchGoalAndSaving(); // 📌 Gọi khi trang tải xong
 });

@@ -1,373 +1,358 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Financial Dashboard</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
-      crossorigin="anonymous"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="../static/css/fin_dashboard.css" />
-  </head>
-  <body>
-    <h1 class="financial">Financial Dashboard</h1>
 
-    <div class="container-fluid">
-      <div class="row g-4">
-        <!-- Revenue card mb-4 mb-4 mb-4 -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div class="card mb-4">
-            <h2>REVENUE</h2>
-            <canvas id="revenueChart"></canvas>
-            <button class="export-btn">Exp to xlsx</button>
-          </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../static/css/fin_dashboard.css" />
+</head>
+
+<body>
+  <h1 class="financial">Financial Dashboard</h1>
+
+  <div class="container-fluid">
+    <div class="row g-4">
+      <!-- Revenue card mb-4 mb-4 mb-4 -->
+      <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="card mb-4">
+          <h2>REVENUE</h2>
+          <canvas id="revenueChart"></canvas>
+          <button class="export-btn">Exp to xlsx</button>
         </div>
+      </div>
 
-        <!-- Expense card mb-4 mb-4 mb-4 -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div class="card mb-4">
-            <h2>EXPENSE</h2>
-            <canvas id="expenseChart"></canvas>
-            <button class="export-btn">Exp to xlsx</button>
-          </div>
+      <!-- Expense card mb-4 mb-4 mb-4 -->
+      <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="card mb-4">
+          <h2>EXPENSE</h2>
+          <canvas id="expenseChart"></canvas>
+          <button class="export-btn">Exp to xlsx</button>
         </div>
+      </div>
 
-        <!-- Summary card mb-4 mb-4 mb-4 -->
-        <div class="col-lg-4 col-md-12 col-sm-12">
-          <div class="card mb-4">
-            <h2>SUMMARY</h2>
-            <div class="summary-chart">
-              <canvas id="summaryChart"></canvas>
+      <!-- Summary card mb-4 mb-4 mb-4 -->
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="card mb-4">
+          <h2>SUMMARY</h2>
+          <div class="summary-chart">
+            <canvas id="summaryChart"></canvas>
+          </div>
+          <button class="export-btn">Exp to xlsx</button>
+        </div>
+      </div>
+
+      <!-- 🟢 Transaction History Table -->
+      <div class="col-lg-8 col-md-6 col-sm-12">
+        <div class="card mb-4">
+          <h2>TRANSACTION HISTORY</h2>
+
+          <!-- 🟢 Chọn khoảng thời gian -->
+          <!-- 🟢 Form chọn ngày -->
+          <form method="POST" class="date-picker-container">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" name="start_date" value="{{ selected_start_date }}">
+
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" name="end_date" value="{{ selected_end_date }}">
+
+            <button type="submit" class="apply-btn">Apply</button>
+          </form>
+
+
+
+          <!-- 🟢 Dropdown nhóm theo Type -->
+          <label for="groupByType">Group by Type:</label>
+          <select id="groupByType" onchange="groupByType()">
+            <option value="all">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+
+          <!-- 🟢 Bảng hiển thị giao dịch -->
+          <div class="table-container">
+            <table id="transactionTable">
+              <thead>
+                <tr>
+                  <th onclick="sortTable(0)">Description</th>
+                  <th onclick="sortTable(1)">Date ⬍</th>
+                  <th onclick="sortTable(2)">Type</th>
+                  <th onclick="sortTable(3)">Amount ⬍</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transaction in transactions %}
+                <tr data-type="{{ transaction.transaction_type }}">
+                  <td>{{ transaction.category.name }}</td>
+                  <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
+                  <td>{{ transaction.transaction_type }}</td>
+                  <td>
+                    {{ "{:,.0f}".format(transaction.transaction_amount) }} VND
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <button class="export-btn">Exp to xlsx</button>
+        </div>
+      </div>
+
+
+
+      <!-- Saving card mb-4 mb-4 mb-4 -->
+      <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="card mb-4">
+          <div class="saving-section">
+            <h2>SAVING</h2>
+            <!-- Goal Input -->
+            <label for="saving-goal">Set your saving goal:</label>
+            <input type="text" id="saving-goal" placeholder="Enter your goal (VND)" />
+
+            <!-- Save Button -->
+            <button id="save-goal" class="save-btn">Save Goal</button>
+
+            <!-- Progress Bar -->
+            <div class="progress-container">
+              <div class="progress-bar" id="progress-bar" style="width: 80%"></div>
             </div>
-            <button class="export-btn">Exp to xlsx</button>
+
+            <!-- Current Savings -->
+            <p><strong>Current Saving:</strong></p>
+            <p>
+              <strong>Savings Goal:</strong>
+              <span id="goal-amount">10,000,000 VND</span>
+            </p>
           </div>
+
+          <h3 id="not-reached" style="display: none">
+            You have not reached your savings goal yet
+            <span> <img src="../static/image/sad.png" /> </span>
+          </h3>
+          <h3 id="reached" style="display: none">
+            You reached your savings goal!
+            <span> <img src="../static/image/loved.png" /> </span>
+          </h3>
         </div>
+      </div>
 
-            <!-- 🟢 Transaction History Table -->
-        <div class="col-lg-8 col-md-6 col-sm-12">
-          <div class="card mb-4">
-              <h2>TRANSACTION HISTORY</h2>
-
-              <!-- 🟢 Chọn khoảng thời gian -->
-              <!-- 🟢 Form chọn ngày -->
-            <form method="POST" class="date-picker-container">
-              <label for="startDate">Start Date:</label>
-              <input type="date" id="startDate" name="start_date" value="{{ selected_start_date }}">
-
-              <label for="endDate">End Date:</label>
-              <input type="date" id="endDate" name="end_date" value="{{ selected_end_date }}">
-
-              <button type="submit" class="apply-btn">Apply</button>
-            </form>
-
-
-
-              <!-- 🟢 Dropdown nhóm theo Type -->
-              <label for="groupByType">Group by Type:</label>
-              <select id="groupByType" onchange="groupByType()">
-                  <option value="all">All</option>
-                  <option value="income">Income</option>
-                  <option value="expense">Expense</option>
-              </select>
-
-              <!-- 🟢 Bảng hiển thị giao dịch -->
-              <div class="table-container">
-                  <table id="transactionTable">
-                      <thead>
-                          <tr>
-                              <th onclick="sortTable(0)">Description</th>
-                              <th onclick="sortTable(1)">Date ⬍</th>
-                              <th onclick="sortTable(2)">Type</th>
-                              <th onclick="sortTable(3)">Amount ⬍</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {% for transaction in transactions %}
-                          <tr data-type="{{ transaction.transaction_type }}">
-                              <td>{{ transaction.category.name }}</td>
-                              <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
-                              <td>{{ transaction.transaction_type }}</td>
-                              <td>
-                                  {{ "{:,.0f}".format(transaction.transaction_amount) }} VND
-                              </td>
-                          </tr>
-                          {% endfor %}
-                      </tbody>
-                  </table>
-              </div>
-
-              <button class="export-btn">Exp to xlsx</button>
-          </div>
-        </div>
-
-
-
-        <!-- Saving card mb-4 mb-4 mb-4 -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div class="card mb-4">
-            <div class="saving-section">
-              <h2>SAVING</h2>
-              <!-- Goal Input -->
-              <label for="saving-goal">Set your saving goal:</label>
-              <input
-                type="text"
-                id="saving-goal"
-                placeholder="Enter your goal (VND)"
-              />
-
-              <!-- Save Button -->
-              <button id="save-goal" class="save-btn">Save Goal</button>
-
-              <!-- Progress Bar -->
-              <div class="progress-container">
-                <div
-                  class="progress-bar"
-                  id="progress-bar"
-                  style="width: 80%"
-                ></div>
-              </div>
-
-              <!-- Current Savings -->
-              <p><strong>Current Saving:</strong> 5,000,000 VND</p>
-              <p>
-                <strong>Savings Goal:</strong>
-                <span id="goal-amount">10,000,000 VND</span>
+      <div class="col-12">
+        <div class="row">
+          <div class="col-12">
+            <!-- Alert card mb-4 mb-4 mb-4 -->
+            <div class="card mb-4">
+              <h2>ALERT</h2>
+              <p class="alert">
+                Maximum transaction amount for a day: 100,000 VND
               </p>
-            </div>
-
-            <h3 id="not-reached" style="display: none">
-              You have not reached your savings goal yet
-              <span> <img src="../static/image/sad.png" /> </span>
-            </h3>
-            <h3 id="reached" style="display: none">
-              You reached your savings goal!
-              <span> <img src="../static/image/loved.png" /> </span>
-            </h3>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="row">
-            <div class="col-12">
-              <!-- Alert card mb-4 mb-4 mb-4 -->
-              <div class="card mb-4">
-                <h2>ALERT</h2>
-                <p class="alert">
-                  Maximum transaction amount for a day: 100,000 VND
-                </p>
-                <p>You reached the maximum!! No more expense, please!!</p>
-              </div>
+              <p>You reached the maximum!! No more expense, please!!</p>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <script src="../static/js/fin_dashboard.js"></script>
+  <script src="../static/js/fin_dashboard.js"></script>
 
-    <script>
-      // 🟢 Lấy dữ liệu từ Flask
-      var revenueData = JSON.parse('{{ revenue_data | tojson | safe }}');
-      var expenseData = JSON.parse('{{ expense_data | tojson | safe }}');
-      var labels = JSON.parse('{{ labels | tojson | safe }}');
-  
-      // 🟢 Biểu đồ REVENUE (Income vs Expense tháng này)
-      var ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-      new Chart(ctxRevenue, {
-          type: "line",
-          data: {
-              labels: labels,
-              datasets: [
-                  {
-                      label: "Income",
-                      data: revenueData.income,
-                      borderColor: "#00F719",
-                      backgroundColor: "rgba(0, 247, 25, 0.2)",
-                      fill: false,
-                      tension: 0.4,
-                      pointStyle: 'circle',
-                      pointRadius: 5
-                  },
-                  {
-                      label: "Expense",
-                      data: revenueData.expense,
-                      borderColor: "#F62A3C",
-                      backgroundColor: "rgba(246, 42, 60, 0.2)",
-                      fill: false,
-                      tension: 0.4,
-                      pointStyle: 'circle',
-                      pointRadius: 5
-                  }
-              ]
+  <script>
+    // 🟢 Lấy dữ liệu từ Flask
+    var revenueData = JSON.parse('{{ revenue_data | tojson | safe }}');
+    var expenseData = JSON.parse('{{ expense_data | tojson | safe }}');
+    var labels = JSON.parse('{{ labels | tojson | safe }}');
+
+    // 🟢 Biểu đồ REVENUE (Income vs Expense tháng này)
+    var ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctxRevenue, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Income",
+            data: revenueData.income,
+            borderColor: "#00F719",
+            backgroundColor: "rgba(0, 247, 25, 0.2)",
+            fill: false,
+            tension: 0.4,
+            pointStyle: 'circle',
+            pointRadius: 5
           },
-          options: {
-              plugins: {
-                legend: {
-              labels: {
-                color: "white", // Màu trắng cho nhãn trong legend
-                usePointStyle: true, // Ghi chú hình tròn
-                pointStyle: "circle",
-              },
-            },
-              },
-              scales: {
-                  x: { ticks: { color: "white" } },
-                  y: { ticks: { color: "white" } }
-              }
+          {
+            label: "Expense",
+            data: revenueData.expense,
+            borderColor: "#F62A3C",
+            backgroundColor: "rgba(246, 42, 60, 0.2)",
+            fill: false,
+            tension: 0.4,
+            pointStyle: 'circle',
+            pointRadius: 5
           }
-      });
-  
-      // 🟢 Biểu đồ EXPENSE (Chi tiêu tháng này vs tháng trước)
-      var ctxExpense = document.getElementById('expenseChart').getContext('2d');
-      new Chart(ctxExpense, {
-          type: "line",
-          data: {
-              labels: labels,
-              datasets: [
-                  {
-                      label: "This Month",
-                      data: expenseData.current,
-                      borderColor: "#F62A3C",
-                      backgroundColor: "rgba(246, 42, 60, 0.2)",
-                      fill: false,
-                      tension: 0.4,
-                      pointStyle: 'circle',
-                      pointRadius: 5
-                  },
-                  {
-                      label: "Last Month",
-                      data: expenseData.previous,
-                      borderColor: "gray",
-                      backgroundColor: "rgba(144, 144, 144, 0.2)",
-                      fill: false,
-                      tension: 0.4,
-                      pointStyle: 'circle',
-                      pointRadius: 5
-                  }
-              ]
+        ]
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: "white", // Màu trắng cho nhãn trong legend
+              usePointStyle: true, // Ghi chú hình tròn
+              pointStyle: "circle",
+            },
           },
-          options: {
-              plugins: {
-                legend: {
-              labels: {
-                color: "white", // Màu trắng cho nhãn trong legend
-                usePointStyle: true, // Ghi chú hình tròn
-                pointStyle: "circle",
-              },
-            },
-              },
-              scales: {
-                  x: { ticks: { color: "white" } },
-                  y: { ticks: { color: "white" } }
-              }
+        },
+        scales: {
+          x: { ticks: { color: "white" } },
+          y: { ticks: { color: "white" } }
+        }
+      }
+    });
+
+    // 🟢 Biểu đồ EXPENSE (Chi tiêu tháng này vs tháng trước)
+    var ctxExpense = document.getElementById('expenseChart').getContext('2d');
+    new Chart(ctxExpense, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "This Month",
+            data: expenseData.current,
+            borderColor: "#F62A3C",
+            backgroundColor: "rgba(246, 42, 60, 0.2)",
+            fill: false,
+            tension: 0.4,
+            pointStyle: 'circle',
+            pointRadius: 5
+          },
+          {
+            label: "Last Month",
+            data: expenseData.previous,
+            borderColor: "gray",
+            backgroundColor: "rgba(144, 144, 144, 0.2)",
+            fill: false,
+            tension: 0.4,
+            pointStyle: 'circle',
+            pointRadius: 5
           }
-      });
+        ]
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: "white", // Màu trắng cho nhãn trong legend
+              usePointStyle: true, // Ghi chú hình tròn
+              pointStyle: "circle",
+            },
+          },
+        },
+        scales: {
+          x: { ticks: { color: "white" } },
+          y: { ticks: { color: "white" } }
+        }
+      }
+    });
 
-      // 🟢 Sort Table (Date & Amount)
-function sortTable(columnIndex) {
-    let table = document.getElementById("transactionTable");
-    let rows = Array.from(table.rows).slice(1);
-    let isAscending = table.getAttribute("data-sort") !== "asc";
+    // 🟢 Sort Table (Date & Amount)
+    function sortTable(columnIndex) {
+      let table = document.getElementById("transactionTable");
+      let rows = Array.from(table.rows).slice(1);
+      let isAscending = table.getAttribute("data-sort") !== "asc";
 
-    rows.sort((rowA, rowB) => {
+      rows.sort((rowA, rowB) => {
         let cellA = rowA.cells[columnIndex].innerText.trim();
         let cellB = rowB.cells[columnIndex].innerText.trim();
 
         if (columnIndex === 1) {
-            // 🟢 Sort theo Date (dd/mm/yyyy -> yyyy/mm/dd)
-            let dateA = cellA.split("/").reverse().join("-");
-            let dateB = cellB.split("/").reverse().join("-");
-            return isAscending ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+          // 🟢 Sort theo Date (dd/mm/yyyy -> yyyy/mm/dd)
+          let dateA = cellA.split("/").reverse().join("-");
+          let dateB = cellB.split("/").reverse().join("-");
+          return isAscending ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
         } else if (columnIndex === 3) {
-            // 🟢 Sort theo Amount (số tiền)
-            let amountA = parseInt(cellA.replace(/,/g, ""));
-            let amountB = parseInt(cellB.replace(/,/g, ""));
-            return isAscending ? amountA - amountB : amountB - amountA;
+          // 🟢 Sort theo Amount (số tiền)
+          let amountA = parseInt(cellA.replace(/,/g, ""));
+          let amountB = parseInt(cellB.replace(/,/g, ""));
+          return isAscending ? amountA - amountB : amountB - amountA;
         } else {
-            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+          return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
         }
-    });
+      });
 
-    table.tBodies[0].append(...rows);
-    table.setAttribute("data-sort", isAscending ? "asc" : "desc");
-}
+      table.tBodies[0].append(...rows);
+      table.setAttribute("data-sort", isAscending ? "asc" : "desc");
+    }
 
-// 🟢 Nhóm theo Type (Income / Expense)
-function groupByType() {
-    let selectedType = document.getElementById("groupByType").value;
-    let rows = document.querySelectorAll("#transactionTable tbody tr");
+    // 🟢 Nhóm theo Type (Income / Expense)
+    function groupByType() {
+      let selectedType = document.getElementById("groupByType").value;
+      let rows = document.querySelectorAll("#transactionTable tbody tr");
 
-    rows.forEach(row => {
+      rows.forEach(row => {
         let transactionType = row.getAttribute("data-type");
         row.style.display = (selectedType === "all" || transactionType === selectedType) ? "" : "none";
-    });
-}
+      });
+    }
 
-var summaryData = JSON.parse('{{ summary_data | tojson | safe }}');
+    var summaryData = JSON.parse('{{ summary_data | tojson | safe }}');
 
-var ctxSummary = document.getElementById('summaryChart').getContext('2d');
-new Chart(ctxSummary, {
-    type: "pie",
-    data: {
+    var ctxSummary = document.getElementById('summaryChart').getContext('2d');
+    new Chart(ctxSummary, {
+      type: "pie",
+      data: {
         labels: summaryData.labels,
         datasets: [{
-            data: summaryData.values,
-            backgroundColor: [
-                "#1E90FF", "#32CD32", "#FF6347", "#FFA500", "#FFD700",
-                "#FF69B4", "#8A2BE2", "#00CED1", "#DC143C", "#7FFF00"
-            ],
-            hoverOffset: 12
+          data: summaryData.values,
+          backgroundColor: [
+            "#1E90FF", "#32CD32", "#FF6347", "#FFA500", "#FFD700",
+            "#FF69B4", "#8A2BE2", "#00CED1", "#DC143C", "#7FFF00"
+          ],
+          hoverOffset: 12
         }]
-    },
-    options: {
+      },
+      options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-              labels: {
-                color: "white", // Màu trắng cho nhãn trong legend
-                usePointStyle: true, // Ghi chú hình tròn
-                pointStyle: "circle",
-              },
-              position: "right"
+            labels: {
+              color: "white", // Màu trắng cho nhãn trong legend
+              usePointStyle: true, // Ghi chú hình tròn
+              pointStyle: "circle",
             },
-            tooltip: {
-                callbacks: {
-                    label: function (tooltipItem) {
-                        let value = tooltipItem.raw;
-                        let total = summaryData.values.reduce((a, b) => a + b, 0);
-                        let percentage = ((value / total) * 100).toFixed(2);
-                        return `${summaryData.labels[tooltipItem.dataIndex]}: ${value.toLocaleString()} VND (${percentage}%)`;
-                    }
-                }
+            position: "right"
+          },
+          tooltip: {
+            callbacks: {
+              label: function (tooltipItem) {
+                let value = tooltipItem.raw;
+                let total = summaryData.values.reduce((a, b) => a + b, 0);
+                let percentage = ((value / total) * 100).toFixed(2);
+                return `${summaryData.labels[tooltipItem.dataIndex]}: ${value.toLocaleString()} VND (${percentage}%)`;
+              }
             }
+          }
         }
-    }
-});
+      }
+    });
 
 
   </script>
-  
-  
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
-      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
-      integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
+    integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+"
+    crossorigin="anonymous"></script>
+</body>
+
 </html>

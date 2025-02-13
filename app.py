@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify
+from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from database import db, app
 from models import User, Expense, Transaction, Category, Goal
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
@@ -51,24 +51,33 @@ def register():
 @login_required
 def add_transaction():
     form = TransactionForm()
-    categories = Category.query.filter_by(user_id=current_user.id).all()  # 🟢 Lấy danh sách danh mục có sẵn
+    categories = Category.query.filter_by(user_id=current_user.id).all()
 
-    if form.validate_on_submit():
-        # Lấy dữ liệu từ form
+    if request.method == "POST":
+        transaction_date = request.form.get("transaction_date")
+        transaction_type = request.form.get("transaction_type")
+        transaction_amount = request.form.get("transaction_amount")
         selected_category = request.form.get("category_name")
         new_category_name = request.form.get("new_category", "").strip()
+
+        # Debug dữ liệu gửi lên
+        print(f"📥 Received Data: {transaction_date}, {transaction_type}, {transaction_amount}, {selected_category}")
+
+        if not transaction_date or not transaction_type or not transaction_amount:
+            flash("⚠️ Missing required fields.", "danger")
+            return redirect(url_for("add_transaction"))
+
+        # Chuyển đổi số tiền từ chuỗi sang float
+        try:
+            transaction_amount = float(transaction_amount.replace(",", ""))
+        except ValueError:
+            flash("⚠️ Invalid amount format.", "danger")
+            return redirect(url_for("add_transaction"))
 
         # Xác định danh mục cuối cùng
         category_name = new_category_name if selected_category == "other" else selected_category
 
-        transaction_date = datetime.combine(form.transaction_date.data, datetime.min.time())
-        transaction_type = form.transaction_type.data
-        transaction_amount = abs(form.transaction_amount.data)
-
-        if transaction_type == "expense":
-            transaction_amount = -transaction_amount
-
-        # Kiểm tra xem danh mục có tồn tại chưa
+        # Kiểm tra xem danh mục đã tồn tại chưa
         category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
         if not category:
             category = Category(name=category_name, user_id=current_user.id)
@@ -77,7 +86,7 @@ def add_transaction():
 
         # Tạo giao dịch mới
         new_transaction = Transaction(
-            transaction_date=transaction_date,
+            transaction_date=datetime.strptime(transaction_date, "%Y-%m-%d"),
             transaction_type=transaction_type,
             category_id=category.id,
             user_id=current_user.id,
@@ -87,9 +96,25 @@ def add_transaction():
         db.session.add(new_transaction)
         db.session.commit()
 
+        # Nếu là "saving", cập nhật tổng số tiền tiết kiệm
+        if transaction_type == "saving":
+            update_saving(current_user.id)
+
+        flash("✅ Transaction added successfully!", "success")
         return redirect(url_for("fin_dashboard"))
 
     return render_template("add_transaction.html", form=form, categories=categories)
+
+# 📌 Hàm cập nhật tổng saving
+def update_saving(user_id):
+    total_saving = db.session.query(
+        db.func.sum(Transaction.transaction_amount)
+    ).filter(
+        Transaction.user_id == user_id,
+        Transaction.transaction_type == "saving"
+    ).scalar() or 0
+
+    print(f"✅ Cập nhật saving: {total_saving} VND")
 
 
 @app.route("/fin_dashboard", methods=["GET", "POST"])
@@ -249,6 +274,21 @@ def set_goal():
 
     db.session.commit()
     return jsonify({"message": "Goal updated successfully!"})
+
+# 📌 Lấy tổng số tiền đã tiết kiệm
+@app.route('/get_saving', methods=['GET'])
+@login_required
+def get_saving():
+    total_saving = db.session.query(
+        db.func.sum(Transaction.transaction_amount)
+    ).filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_type == "saving"
+    ).scalar() or 0
+
+    print(f"✅ Tổng saving hiện tại: {total_saving} VND")
+    return jsonify({"current_saving": total_saving})
+
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():

@@ -2,14 +2,23 @@
     {{ form.hidden_tag() }}
 
     <p>{{ form.transaction_date.label }} {{ form.transaction_date }}</p>
-    <p>{{ form.transaction_type.label }} {{ form.transaction_type }}</p>
+
+    <!-- 🟢 Chọn loại giao dịch -->
+    <p>
+        <label for="transaction_type">Transaction Type</label>
+        <select id="transaction_type" name="transaction_type" required>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+            <option value="saving">Saving</option> <!-- 🛑 Bổ sung tùy chọn Saving -->
+        </select>
+    </p>
 
     <p>
         <label for="categorySelect">Category</label>
         <select id="categorySelect" name="category_name">
             <option value="" disabled selected>-- Select a category --</option>
             {% for category in categories %}
-                <option value="{{ category.name }}">{{ category.name }}</option>
+            <option value="{{ category.name }}">{{ category.name }}</option>
             {% endfor %}
             <option value="other">Other (Enter new category)</option>
         </select>
@@ -26,12 +35,12 @@
 </form>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         let categorySelect = document.getElementById("categorySelect");
         let newCategoryContainer = document.getElementById("newCategoryContainer");
         let newCategoryInput = document.getElementById("newCategory");
 
-        categorySelect.addEventListener("change", function() {
+        categorySelect.addEventListener("change", function () {
             if (this.value === "other") {
                 newCategoryContainer.style.display = "block";
                 newCategoryInput.setAttribute("required", "required");
