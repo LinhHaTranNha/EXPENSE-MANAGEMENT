@@ -36,3 +36,11 @@ class Goal(db.Model):
 
     # 🔥 Liên kết với User
     user = db.relationship("User", backref=db.backref("goal", uselist=False))
+
+class DailyLimit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    limit_amount = db.Column(db.Float, nullable=False)  # 🔥 Mặc định 500,000 VND/ngày
+
+    # 🔥 Liên kết với User
+    user = db.relationship("User", backref=db.backref("daily_limit", uselist=False))

@@ -160,20 +160,32 @@
         </div>
       </div>
 
-      <!-- ALERT  -->
+      <!-- 🟢 ALERT -->
       <div class="alert-container">
         <h2>ALERT</h2>
+
+        <!-- 🟢 Input để nhập giới hạn -->
+        <label for="daily-limit">Set your daily limit:</label>
+        <input type="text" id="daily-limit" placeholder="Enter limit (VND)">
+        <button id="set-limit-btn" class="save-btn">Save Limit</button>
+
+        <!-- 🟢 Hiển thị số tiền giới hạn -->
         <p class="alert-text">
           Maximum transaction amount for a day:
           <span id="max-amount" style="color: red;">{{ total_income_today }}</span> VND
         </p>
+
+        <!-- 🟢 Progress bar -->
         <div class="progress-container">
           <div class="progress-bar" id="progress-bar-alert"></div>
           <span class="coin-icon">💰</span>
         </div>
+
+        <!-- 🟢 Thông báo cảnh báo -->
         <p id="alert-message" class="alert-warning"></p>
-        <p id="over-limit-message" class="alert-exceed" style="display: none;"></p> <!-- ✅ Chắc chắn có thẻ này -->
+        <p id="over-limit-message" class="alert-exceed" style="display: none;"></p>
       </div>
+
     </div>
   </div>
 
@@ -361,54 +373,68 @@
 
 
     document.addEventListener("DOMContentLoaded", function () {
-      let maxAmountElement = document.getElementById("max-amount");
-      let progressBar = document.getElementById("progress-bar-alert");
-      let alertMessage = document.getElementById("alert-message");
-      let overLimitMessage = document.getElementById("over-limit-message");
+      const limitInput = document.getElementById("daily-limit");
+      const setLimitBtn = document.getElementById("set-limit-btn");
+      const maxAmountElement = document.getElementById("max-amount");
+      const progressBar = document.getElementById("progress-bar-alert");
+      const alertMessage = document.getElementById("alert-message");
+      const overLimitMessage = document.getElementById("over-limit-message");
 
-      // 📌 Lấy dữ liệu từ Flask
-      let maxAmount = parseFloat("{{ total_income_today }}") || 0;
+      let dailyLimit = 500000; // Mặc định
       let currentExpense = parseFloat("{{ total_expense_today }}") || 0;
-      let overLimit = parseFloat("{{ over_limit_amount }}") || 0;
 
-      console.log(`DEBUG: Max = ${maxAmount}, Expense = ${currentExpense}, Over Limit = ${overLimit}`);
+      /** 📌 Lấy giới hạn tiêu từ API */
+      fetch("/get_daily_limit")
+        .then(response => response.json())
+        .then(data => {
+          dailyLimit = data.limit_amount;
+          maxAmountElement.textContent = dailyLimit.toLocaleString("en-US") + " VND";
+          updateProgress();
+        });
 
-      // 📌 Cập nhật số tiền tối đa (income của ngày)
-      maxAmountElement.textContent = maxAmount.toLocaleString("en-US") + " VND";
+      /** 📌 Hàm cập nhật tiến trình */
+      function updateProgress() {
+        let expensePercent = (currentExpense / dailyLimit) * 100;
+        progressBar.style.width = Math.min(expensePercent, 100) + "%";
 
-      // 📌 Tính phần trăm chi tiêu
-      let expensePercent = maxAmount > 0 ? (currentExpense / maxAmount) * 100 : 0;
+        if (currentExpense >= dailyLimit) {
+          progressBar.style.backgroundColor = "red";
+          alertMessage.textContent = "⚠️ You reached the maximum! No more expenses!";
+          alertMessage.style.display = "block";
 
-      // 📌 Cập nhật thanh progress
-      progressBar.style.width = Math.min(expensePercent, 100) + "%";
-
-      // 📌 Nếu không có income, ẩn progress bar và hiển thị thông báo khác
-      if (maxAmount === 0) {
-        progressBar.style.display = "none";
-        alertMessage.textContent = "⚠️ No income recorded today!";
-        alertMessage.style.display = "block";
-        alertMessage.style.color = "orange";
-        overLimitMessage.style.display = "none";
-      } else if (currentExpense >= maxAmount) {
-        progressBar.style.backgroundColor = "red"; // Thanh đỏ cảnh báo
-        alertMessage.textContent = "⚠️ You reached the maximum!! No more expense, please!!";
-        alertMessage.style.display = "block";
-
-        // 📌 Hiển thị số tiền vượt quá (nếu có)
-        if (overLimit > 0) {
-          overLimitMessage.textContent = `🔥 You exceeded the limit by ${overLimit.toLocaleString("en-US")} VND!`;
-          overLimitMessage.style.color = "red";
-          overLimitMessage.style.fontWeight = "bold";
-          overLimitMessage.style.display = "block";
+          let overLimit = currentExpense - dailyLimit;
+          if (overLimit > 0) {
+            overLimitMessage.textContent = `🔥 Exceeded by ${overLimit.toLocaleString("en-US")} VND!`;
+            overLimitMessage.style.display = "block";
+          }
         } else {
+          progressBar.style.backgroundColor = "#00ff99";
+          alertMessage.style.display = "none";
           overLimitMessage.style.display = "none";
         }
-      } else {
-        progressBar.style.backgroundColor = "#00ff99"; // Màu xanh nếu chưa vượt mức
-        alertMessage.style.display = "none";
-        overLimitMessage.style.display = "none";
       }
+
+      /** 📌 Lưu giới hạn khi nhấn nút */
+      setLimitBtn.addEventListener("click", function () {
+        let newLimit = parseFloat(limitInput.value.replace(/,/g, "")) || 500000;
+
+        fetch("/set_daily_limit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ limit_amount: newLimit })
+        })
+          .then(response => response.json())
+          .then(data => {
+            dailyLimit = data.new_limit;
+            maxAmountElement.textContent = dailyLimit.toLocaleString("en-US") + " VND";
+            updateProgress();
+            alert("✅ Daily limit updated successfully!");
+          });
+      });
+
+      updateProgress();
     });
+
 
   </script>
 

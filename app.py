@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from database import db, app
-from models import User, Expense, Transaction, Category, Goal
+from models import User, Expense, Transaction, Category, Goal, DailyLimit
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
@@ -486,6 +486,36 @@ def export_transactions():
     output.seek(0)
 
     return send_file(output, as_attachment=True, download_name="Transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@app.route('/get_daily_limit', methods=['GET'])
+@login_required
+def get_daily_limit():
+    daily_limit = DailyLimit.query.filter_by(user_id=current_user.id).first()
+    if daily_limit:
+        return jsonify({"limit_amount": daily_limit.limit_amount})
+    return jsonify({"limit_amount": 500000})  # Mặc định nếu chưa đặt
+
+
+
+@app.route('/set_daily_limit', methods=['POST'])
+@login_required
+def set_daily_limit():
+    data = request.get_json()
+    new_limit = data.get("limit_amount")
+
+    if new_limit is None or new_limit <= 0:
+        return jsonify({"error": "Invalid limit amount"}), 400
+
+    daily_limit = DailyLimit.query.filter_by(user_id=current_user.id).first()
+    if daily_limit:
+        daily_limit.limit_amount = new_limit
+    else:
+        daily_limit = DailyLimit(user_id=current_user.id, limit_amount=new_limit)
+        db.session.add(daily_limit)
+
+    db.session.commit()
+    return jsonify({"message": "Daily limit updated successfully!", "new_limit": new_limit})
 
 
 
