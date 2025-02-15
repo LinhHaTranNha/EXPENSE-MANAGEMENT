@@ -62,11 +62,13 @@ def add_transaction():
         transaction_date = request.form.get("transaction_date")
         transaction_type = request.form.get("transaction_type")
         transaction_amount = request.form.get("transaction_amount")
-        selected_category = request.form.get("category_name")
+
+        # Đảm bảo selected_category có giá trị hợp lệ
+        selected_category = request.form.get("category_name", "").strip()
         new_category_name = request.form.get("new_category", "").strip()
 
         # Debug dữ liệu gửi lên
-        print(f"📥 Received Data: {transaction_date}, {transaction_type}, {transaction_amount}, {selected_category}")
+        print(f"📥 Received Data: {transaction_date}, {transaction_type}, {transaction_amount}, {selected_category}, {new_category_name}")
 
         if not transaction_date or not transaction_type or not transaction_amount:
             flash("⚠️ Missing required fields.", "danger")
@@ -79,27 +81,38 @@ def add_transaction():
             flash("⚠️ Invalid amount format.", "danger")
             return redirect(url_for("add_transaction"))
 
-        # Xác định danh mục cuối cùng
-        category_name = new_category_name if selected_category == "other" else selected_category
+        # Xác định danh mục cuối cùng và chuẩn hóa chữ cái đầu của mỗi từ
+        if selected_category == "other" and new_category_name:
+            category_name = new_category_name
+        else:
+            category_name = selected_category
+
+        category_name = (category_name or "").strip().title()  # Sửa lỗi khi category_name là None
 
         # Kiểm tra xem danh mục đã tồn tại chưa
         category = Category.query.filter_by(name=category_name, user_id=current_user.id).first()
+
         if not category:
             category = Category(name=category_name, user_id=current_user.id)
             db.session.add(category)
             db.session.commit()
+            db.session.refresh(category)  # Đảm bảo lấy được category.id
 
-        # Tạo giao dịch mới
+        print(f"📌 Final Category: {category.name} (ID: {category.id})")  # Debug xem có bị None không
+
+        # Đảm bảo category_id không bị NULL khi lưu giao dịch
         new_transaction = Transaction(
             transaction_date=datetime.strptime(transaction_date, "%Y-%m-%d"),
             transaction_type=transaction_type,
-            category_id=category.id,
+            category_id=category.id,  # Đảm bảo category.id hợp lệ
             user_id=current_user.id,
             transaction_amount=transaction_amount
         )
 
         db.session.add(new_transaction)
         db.session.commit()
+
+        print(f"✅ Saved Transaction: ID {new_transaction.id}, Category ID: {new_transaction.category_id}")  # Debug giao dịch
 
         # Nếu là "saving", cập nhật tổng số tiền tiết kiệm
         if transaction_type == "saving":

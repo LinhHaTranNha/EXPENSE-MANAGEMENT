@@ -38,7 +38,7 @@
         <p class="input-icon">
             <label for="categorySelect">Category</label>
             <i class="fas fa-list-ul"></i>
-            <select id="categorySelect" name="category_name" class="form-control">
+            <select id="categorySelect" name="category_name" class="form-control" required>
                 <option value="" disabled selected>-- Select a category --</option>
                 {% for category in categories %}
                 <option value="{{ category.name }}">{{ category.name }}</option>
@@ -47,10 +47,11 @@
             </select>
         </p>
 
-        <p id="newCategoryContainer">
+        <p id="newCategoryContainer" style="display: none;">
             <label for="newCategory">New Category</label>
             <input type="text" id="newCategory" name="new_category" class="form-control">
         </p>
+
 
         <p class="input-icon">
             <label for="transaction_amount">Amount</label>
@@ -90,4 +91,32 @@
             transactionDateInput.value = formattedDate;
         }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let categorySelect = document.getElementById("categorySelect");
+        let newCategoryContainer = document.getElementById("newCategoryContainer");
+        let newCategoryInput = document.getElementById("newCategory");
+
+        // Ẩn ô nhập New Category mặc định
+        newCategoryContainer.style.display = "none";
+
+        categorySelect.addEventListener("change", function () {
+            if (this.value === "other") {
+                newCategoryContainer.style.display = "block";
+                newCategoryInput.setAttribute("required", "required");
+            } else {
+                newCategoryContainer.style.display = "none";
+                newCategoryInput.removeAttribute("required");
+                newCategoryInput.value = "";  // Xóa giá trị khi ẩn đi
+            }
+        });
+
+        // Đặt mặc định ngày giao dịch là hôm nay
+        let transactionDateInput = document.querySelector("[name=transaction_date]");
+        if (transactionDateInput) {
+            let today = new Date().toISOString().split("T")[0]; // Format YYYY-MM-DD
+            transactionDateInput.value = today;
+        }
+    });
+
 </script>
