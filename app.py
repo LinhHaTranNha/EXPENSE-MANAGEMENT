@@ -136,6 +136,11 @@ def update_saving(user_id):
     print(f"✅ Cập nhật saving: {total_saving} VND")
 
 
+from collections import defaultdict
+from datetime import datetime, date
+from sqlalchemy import func, extract, cast
+from sqlalchemy.sql.sqltypes import Date
+
 @app.route("/fin_dashboard", methods=["GET", "POST"])
 @login_required
 def fin_dashboard():
@@ -151,35 +156,47 @@ def fin_dashboard():
         previous_month = current_month - 1
         previous_year = current_year
 
-    # 🟢 Nhận ngày bắt đầu & kết thúc từ form
+    # 🟢 Nhận ngày bắt đầu & kết thúc từ form (Dùng cho transactions_current)
     start_date = request.form.get("start_date")
     end_date = request.form.get("end_date")
 
     if not start_date:
-        start_date = datetime(current_year, current_month, 1)
+        start_date = datetime(current_year, current_month, 1)  # Mặc định lấy từ ngày 1 của tháng hiện tại
     else:
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
 
     if not end_date:
-        end_date = today
+        end_date = today  # Mặc định lấy đến ngày hiện tại
     else:
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
-    # 🟢 Lấy giao dịch trong khoảng ngày đã chọn
+    # 🟢 Tạo khoảng thời gian chỉ tính revenue & expense từ ngày 1 → hôm nay
+    revenue_start_date = datetime(current_year, current_month, 1)
+    revenue_end_date = today  # Chỉ lấy đến ngày hiện tại
+
+    # 🟢 Lấy giao dịch trong khoảng ngày FE gửi lên (KHÔNG ẢNH HƯỞNG revenue & expense)
     transactions_current = Transaction.query.filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_date >= start_date,
         Transaction.transaction_date <= end_date
     ).all()
 
+    # 🟢 Lấy giao dịch chỉ cho revenue & expense từ ngày 1 → hôm nay
+    revenue_expense_transactions = Transaction.query.filter(
+        Transaction.user_id == current_user.id,
+        Transaction.transaction_date >= revenue_start_date,
+        Transaction.transaction_date <= revenue_end_date
+    ).all()
+
+    # 🟢 Lấy giao dịch của tháng trước (toàn bộ tháng)
     transactions_previous = Transaction.query.filter(
         Transaction.user_id == current_user.id,
         extract('month', Transaction.transaction_date) == previous_month,
         extract('year', Transaction.transaction_date) == previous_year
     ).all()
 
-    # 🟢 Tạo danh sách ngày từ start_date → end_date
-    days = list(range(start_date.day, end_date.day + 1))
+    # 🟢 Tạo danh sách ngày từ ngày 1 → hôm nay (chỉ áp dụng cho revenue & expense)
+    days = list(range(1, today.day + 1))
 
     # 🟢 Dùng defaultdict để tránh KeyError
     revenue_current = defaultdict(int)
@@ -187,14 +204,15 @@ def fin_dashboard():
     revenue_previous = defaultdict(int)
     expense_previous = defaultdict(int)
 
-    # 🟢 Cập nhật dữ liệu từng ngày
-    for t in transactions_current:
+    # 🟢 Cập nhật dữ liệu revenue & expense từ ngày 1 đến hôm nay
+    for t in revenue_expense_transactions:
         day = t.transaction_date.day
         if t.transaction_type == "income":
-            revenue_current[day] += t.transaction_amount  # Thu nhập
+            revenue_current[day] += t.transaction_amount  # Thu nhập từ ngày 1 → hôm nay
         elif t.transaction_type == "expense":
-            expense_current[day] += abs(t.transaction_amount)  # Chi tiêu
+            expense_current[day] += abs(t.transaction_amount)  # Chi tiêu từ ngày 1 → hôm nay
 
+    # 🟢 Cập nhật dữ liệu tháng trước (LẤY TOÀN BỘ)
     for t in transactions_previous:
         day = t.transaction_date.day
         if t.transaction_type == "income":
@@ -204,18 +222,18 @@ def fin_dashboard():
 
     # 🟢 Chuyển dữ liệu thành danh sách để hiển thị trên biểu đồ
     revenue_data = {
-        "income": [revenue_current[day] for day in days],
-        "expense": [expense_current[day] for day in days]
+        "income": [revenue_current[day] for day in days],  # Chỉ lấy từ ngày 1 → hôm nay
+        "expense": [expense_current[day] for day in days]  # Chỉ lấy từ ngày 1 → hôm nay
     }
 
     expense_data = {
-        "current": [expense_current[day] for day in days],
-        "previous": [expense_previous[day] for day in days]
+        "current": [expense_current[day] for day in days],  # Chỉ từ ngày 1 đến hôm nay
+        "previous": [expense_previous[day] for day in range(1, 32)]  # Toàn bộ tháng trước
     }
 
-    # 🟢 Tổng hợp chi tiêu theo danh mục (Chỉ tính Expense)
+    # 🟢 Tổng hợp chi tiêu theo danh mục (Chỉ tính Expense từ ngày 1 → hôm nay)
     category_summary = defaultdict(int)
-    for t in transactions_current:
+    for t in revenue_expense_transactions:
         if t.transaction_type == "expense":
             category_summary[t.category.name] += abs(t.transaction_amount)
 
@@ -225,20 +243,20 @@ def fin_dashboard():
         "values": list(category_summary.values())  # Tổng chi tiêu từng danh mục
     }
 
-    today = datetime.today().date()
+    today_date = datetime.today().date()
 
     # 🟢 Tính tổng thu nhập (income) trong ngày (Mức tối đa)
     total_income_today = db.session.query(func.sum(Transaction.transaction_amount)).filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_type == "income",
-        cast(Transaction.transaction_date, Date) == today
+        cast(Transaction.transaction_date, Date) == today_date
     ).scalar() or 0  # Nếu None, gán 0
 
     # 🟢 Tính tổng chi tiêu (expense) trong ngày (Mức đã tiêu)
     total_expense_today = db.session.query(func.sum(Transaction.transaction_amount)).filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_type == "expense",
-        cast(Transaction.transaction_date, Date) == today
+        cast(Transaction.transaction_date, Date) == today_date
     ).scalar() or 0  # Nếu None, gán 0
 
     # ✅ Chuyển Expense thành số dương nếu cần
@@ -253,8 +271,8 @@ def fin_dashboard():
         "fin_dashboard.html",
         revenue_data=revenue_data,
         expense_data=expense_data,
-        transactions=transactions_current,
-        summary_data=summary_data,  # ✅ Gửi dữ liệu xuống frontend
+        transactions=transactions_current,  # ✅ Giao dịch vẫn lấy theo start_date → end_date từ FE
+        summary_data=summary_data,  # ✅ Chỉ lấy từ ngày 1 → hôm nay
         labels=days,
         selected_start_date=start_date.strftime("%Y-%m-%d"),
         selected_end_date=end_date.strftime("%Y-%m-%d"),
@@ -262,7 +280,6 @@ def fin_dashboard():
         total_expense_today=total_expense_today,
         over_limit_amount=over_limit_amount  # Gửi số tiền vượt quá xuống frontend
     )
-
 
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
