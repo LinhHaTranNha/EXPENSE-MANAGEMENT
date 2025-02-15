@@ -159,7 +159,7 @@
                     <small>{{ post.created_at.strftime('%H:%M - %d/%m/%Y') }}</small>
                 </div>
             </div>
-            <p>{{ post.content }}</p>
+            <p>{{ post.content | safe }}</p>
             {% if post.image_url %}
             <div class="post-content">
                 <img src="{{ post.image_url }}" alt="Post Image">
