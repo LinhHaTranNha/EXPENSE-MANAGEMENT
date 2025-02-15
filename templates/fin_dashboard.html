@@ -335,12 +335,35 @@
     var summaryData = JSON.parse('{{ summary_data | tojson | safe }}');
 
     var ctxSummary = document.getElementById('summaryChart').getContext('2d');
+
+    // 🟢 Sắp xếp danh mục theo giá trị giảm dần
+    let sortedCategories = summaryData.labels.map((label, index) => ({
+      label: label,
+      value: summaryData.values[index]
+    })).sort((a, b) => b.value - a.value); // Sắp xếp giảm dần
+
+    // 🟢 Lấy 7 danh mục cao nhất, các danh mục còn lại gom vào "Other"
+    let topCategories = sortedCategories.slice(0, 7);
+    let otherCategories = sortedCategories.slice(7);
+
+    let otherTotal = otherCategories.reduce((sum, item) => sum + item.value, 0);
+
+    // 🟢 Cập nhật labels và values
+    let updatedLabels = topCategories.map(item => item.label);
+    let updatedValues = topCategories.map(item => item.value);
+
+    if (otherCategories.length > 0) {
+      updatedLabels.push("Other");
+      updatedValues.push(otherTotal);
+    }
+
+    // 🟢 Cập nhật biểu đồ
     new Chart(ctxSummary, {
       type: "pie",
       data: {
-        labels: summaryData.labels,
+        labels: updatedLabels,
         datasets: [{
-          data: summaryData.values,
+          data: updatedValues,
           backgroundColor: [
             "#1E90FF", "#32CD32", "#FF6347", "#FFA500", "#FFD700",
             "#FF69B4", "#8A2BE2", "#00CED1", "#DC143C", "#7FFF00"
@@ -354,8 +377,8 @@
         plugins: {
           legend: {
             labels: {
-              color: "white", // Màu trắng cho nhãn trong legend
-              usePointStyle: true, // Ghi chú hình tròn
+              color: "white",
+              usePointStyle: true,
               pointStyle: "circle",
             },
             position: "right"
@@ -364,9 +387,9 @@
             callbacks: {
               label: function (tooltipItem) {
                 let value = tooltipItem.raw;
-                let total = summaryData.values.reduce((a, b) => a + b, 0);
+                let total = updatedValues.reduce((a, b) => a + b, 0);
                 let percentage = ((value / total) * 100).toFixed(2);
-                return `${summaryData.labels[tooltipItem.dataIndex]}: ${value.toLocaleString()} VND (${percentage}%)`;
+                return `${updatedLabels[tooltipItem.dataIndex]}: ${value.toLocaleString()} VND (${percentage}%)`;
               }
             }
           }
