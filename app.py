@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from database import db, app
-from models import User, Expense, Transaction, Category, Goal, DailyLimit, UserProfile
+from models import User, Expense, Transaction, Category, Goal, DailyLimit, UserProfile, Post
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
@@ -602,6 +602,27 @@ def edit_profile():
         return redirect(url_for("edit_profile"))
 
     return render_template("edit_profile.html", user_profile=user_profile)
+
+# Route thêm bài viết
+@app.route("/add_post", methods=["GET", "POST"])
+@login_required
+def add_post():
+    if request.method == "POST":
+        title = request.form.get("title")
+        content = request.form.get("content")
+
+        if not title or not content:
+            flash("Vui lòng nhập đầy đủ thông tin!", "danger")
+            return redirect(url_for("add_post"))
+
+        new_post = Post(title=title, content=content, user_id=current_user.id)
+        db.session.add(new_post)
+        db.session.commit()
+
+        flash("Bài viết đã được đăng!", "success")
+        return redirect(url_for("dashboard"))
+
+    return render_template("add_post.html")
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():

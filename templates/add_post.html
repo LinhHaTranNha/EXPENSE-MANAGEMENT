@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../static/image/money.jpg">
+  <title>Thêm Bài Viết - FinMan</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../static/css/animate.css">
+  <link rel="stylesheet" href="../static/css/style.css">
+
+  <!-- CKEditor 5 -->
+  <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js"></script>
+
+  <style>
+    /* 📌 Toàn trang */
+    body {
+      background-color: #001307;
+      color: #e0e0e0;
+      font-family: "Poppins", sans-serif;
+    }
+
+    /* 📌 Hộp thêm bài viết */
+    .post-box {
+      background: #1a3323;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.8s ease-in-out;
+      margin: auto;
+    }
+
+    /* 📌 Nút */
+    .btn-custom {
+      width: 100%;
+      font-size: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      transition: 0.3s;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #081c12, #0f2a1b);
+      border: none;
+      color: #fff;
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #0f2a1b, #00ff99);
+      transform: translateY(-3px);
+    }
+
+    .btn-back {
+      background: #444;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    .btn-back:hover {
+      background: #666;
+      transform: translateY(-3px);
+    }
+
+    /* 📌 Form nhập */
+    .form-group {
+      text-align: left;
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.2);
+      outline: none;
+      box-shadow: 0 0 8px #00ff99;
+      color: white;
+    }
+
+    /* 📌 CKEditor */
+    .ck-editor__editable {
+      background: #1a3323 !important;
+      /* Nền tối để phù hợp giao diện */
+      color: #e0e0e0 !important;
+      /* Chữ màu sáng để dễ nhìn */
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container d-flex vh-100 align-items-center justify-content-center">
+    <div class="post-box wow fadeInUp" data-wow-duration="1s">
+      <h2 class="mb-3">Thêm Bài Viết Mới</h2>
+
+      <!-- Form thêm bài viết -->
+      <form method="POST">
+        <div class="form-group">
+          <label>Tiêu đề</label>
+          <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề bài viết">
+        </div>
+
+        <div class="form-group">
+          <label>Nội dung</label>
+          <textarea name="content" id="editor"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-custom btn-submit">Đăng Bài</button>
+      </form>
+
+      <!-- Nút quay lại Dashboard -->
+      <a href="{{ url_for('dashboard') }}" class="btn btn-custom btn-back">Quay lại Dashboard</a>
+    </div>
+  </div>
+
+  <!-- WOW.js -->
+  <script src="../static/js/wow.min.js"></script>
+  <script>
+    new WOW().init();
+
+    // Khởi tạo CKEditor 5
+    ClassicEditor
+      .create(document.querySelector('#editor'), {
+        toolbar: ['undo', 'redo', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', '|', 'link', 'blockQuote'],
+        heading: {
+          options: [
+            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+          ]
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  </script>
+</body>
+
+</html>
