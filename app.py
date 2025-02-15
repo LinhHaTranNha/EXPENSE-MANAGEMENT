@@ -408,39 +408,49 @@ def export_expense():
         previous_month = current_month - 1
         previous_year = current_year
 
+    # 🟢 Xác định ngày đầu của tháng hiện tại và tháng trước
+    first_day_current = datetime(current_year, current_month, 1).date()
+    first_day_previous = datetime(previous_year, previous_month, 1).date()
+
+    # 🟢 Xác định số ngày tối đa cần lấy (dựa trên tháng hiện tại)
+    max_days = (first_day_current.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+    max_days = max_days.day  # Lấy số ngày trong tháng hiện tại
+
     # 🟢 Truy vấn tổng chi tiêu của tháng hiện tại
     expense_current = db.session.query(
-        Transaction.transaction_date,
+        func.day(Transaction.transaction_date),
         func.sum(Transaction.transaction_amount).label("Current Month Expense")
     ).filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_type == "expense",
         extract("month", Transaction.transaction_date) == current_month,
         extract("year", Transaction.transaction_date) == current_year
-    ).group_by(Transaction.transaction_date).all()
+    ).group_by(func.day(Transaction.transaction_date)).all()
 
     # 🟢 Truy vấn tổng chi tiêu của tháng trước
     expense_previous = db.session.query(
-        Transaction.transaction_date,
+        func.day(Transaction.transaction_date),
         func.sum(Transaction.transaction_amount).label("Previous Month Expense")
     ).filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_type == "expense",
         extract("month", Transaction.transaction_date) == previous_month,
         extract("year", Transaction.transaction_date) == previous_year
-    ).group_by(Transaction.transaction_date).all()
+    ).group_by(func.day(Transaction.transaction_date)).all()
 
     # 🟢 Chuyển kết quả thành DataFrame
-    df_current = pd.DataFrame(expense_current, columns=["Date", "Current Month Expense"])
-    df_previous = pd.DataFrame(expense_previous, columns=["Date", "Previous Month Expense"])
+    df_current = pd.DataFrame(expense_current, columns=["Day", "Current Month Expense"])
+    df_previous = pd.DataFrame(expense_previous, columns=["Day", "Previous Month Expense"])
+
+    # 🟢 Tạo danh sách ngày từ 1 → max_days
+    all_days = pd.DataFrame({"Day": range(1, max_days + 1)})
 
     # 🟢 Điền giá trị 0 cho ngày không có giao dịch
-    all_dates = pd.date_range(start=today.replace(day=1), end=today)
-    df_current = df_current.set_index("Date").reindex(all_dates, fill_value=0).reset_index().rename(columns={"index": "Date"})
-    df_previous = df_previous.set_index("Date").reindex(all_dates, fill_value=0).reset_index().rename(columns={"index": "Date"})
+    df_current = all_days.merge(df_current, on="Day", how="left").fillna(0)
+    df_previous = all_days.merge(df_previous, on="Day", how="left").fillna(0)
 
     # 🟢 Gộp hai bảng để so sánh chi tiêu giữa tháng này và tháng trước
-    df = pd.merge(df_current, df_previous, on="Date", how="outer").fillna(0)
+    df = pd.merge(df_current, df_previous, on="Day", how="outer").fillna(0)
 
     # 🟢 Tính phần trăm thay đổi
     df["Change (%)"] = df.apply(
@@ -452,13 +462,11 @@ def export_expense():
     # 🟢 Xuất ra file Excel
     output = BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False)
+        df.to_excel(writer, index=False, sheet_name="Expense Comparison")
 
     output.seek(0)
 
     return send_file(output, as_attachment=True, download_name="Expense_Comparison.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-
 
 
 @app.route("/export_summary", methods=["GET"])
