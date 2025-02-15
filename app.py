@@ -610,12 +610,9 @@ def add_post():
     if request.method == "POST":
         title = request.form.get("title")
         content = request.form.get("content")
+        image_url = request.form.get("image_url")  # Lấy URL ảnh
 
-        if not title or not content:
-            flash("Vui lòng nhập đầy đủ thông tin!", "danger")
-            return redirect(url_for("add_post"))
-
-        new_post = Post(title=title, content=content, user_id=current_user.id)
+        new_post = Post(title=title, content=content, image_url=image_url, user_id=current_user.id)
         db.session.add(new_post)
         db.session.commit()
 

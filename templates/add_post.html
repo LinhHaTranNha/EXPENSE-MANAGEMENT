@@ -95,12 +95,23 @@
     /* 📌 CKEditor */
     .ck-editor__editable {
       background: #1a3323 !important;
-      /* Nền tối để phù hợp giao diện */
       color: #e0e0e0 !important;
-      /* Chữ màu sáng để dễ nhìn */
       border-radius: 8px;
       padding: 10px;
       min-height: 300px;
+    }
+
+    /* 📌 Hiển thị ảnh từ URL */
+    .image-preview {
+      margin-top: 15px;
+      display: none;
+      text-align: center;
+    }
+
+    .image-preview img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
     }
   </style>
 </head>
@@ -114,12 +125,23 @@
       <form method="POST">
         <div class="form-group">
           <label>Tiêu đề</label>
-          <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề bài viết">
+          <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề bài viết" required>
         </div>
 
         <div class="form-group">
           <label>Nội dung</label>
           <textarea name="content" id="editor"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>URL Ảnh (Tùy chọn)</label>
+          <input type="text" id="imageUrl" name="image_url" class="form-control"
+            placeholder="Dán đường dẫn ảnh vào đây">
+        </div>
+
+        <!-- Hiển thị ảnh từ URL -->
+        <div class="image-preview" id="imagePreview">
+          <img id="previewImg" src="" alt="Xem trước ảnh">
         </div>
 
         <button type="submit" class="btn btn-custom btn-submit">Đăng Bài</button>
@@ -150,6 +172,20 @@
       .catch(error => {
         console.error(error);
       });
+
+    // Xem trước ảnh từ URL nhập vào
+    document.getElementById("imageUrl").addEventListener("input", function () {
+      const imageUrl = this.value.trim();
+      const previewContainer = document.getElementById("imagePreview");
+      const previewImg = document.getElementById("previewImg");
+
+      if (imageUrl) {
+        previewImg.src = imageUrl;
+        previewContainer.style.display = "block";
+      } else {
+        previewContainer.style.display = "none";
+      }
+    });
   </script>
 </body>
 
