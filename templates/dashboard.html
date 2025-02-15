@@ -5,17 +5,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="../static/image/money.jpg" />
-    <title>Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard - FinMan</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/animate.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+
+    <style>
+        /* 📌 Toàn trang */
+        body {
+            background-color: #001307;
+            /* Màu nền đậm */
+            color: #e0e0e0;
+            font-family: "Poppins", sans-serif;
+        }
+
+        /* 📌 Sidebar */
+        .sidebar {
+            background: #1a3323;
+            width: 250px;
+            height: 100vh;
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar h2 {
+            color: #00ff99;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #e0e0e0;
+            padding: 10px;
+            margin: 5px 0;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #00ff99;
+            color: black;
+        }
+
+        /* 📌 Nội dung chính */
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+
+        .dashboard-box {
+            background: #1a3323;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        /* 📌 Nút tạo bài viết */
+        .btn-primary {
+            background: linear-gradient(135deg, #081c12, #0f2a1b);
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0f2a1b, #00ff99);
+            transform: translateY(-3px);
+        }
+
+        /* 📌 Danh sách bài viết */
+        .post {
+            background: #1a3323;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Quản lý Chi Tiêu</h1>
+    <!-- Sidebar -->
+    <div class="sidebar wow fadeInLeft" data-wow-duration="1s">
+        <h2>FinMan</h2>
+        <a href="/add_transaction">Nhập Giao Dịch</a>
+        <a href="/fin_dashboard">Dashboard</a>
+    </div>
 
-    <!-- 🟢 Điều hướng bằng URL -->
-    <a href="/add_transaction">Nhập Giao Dịch</a>
-    <a href="/fin_dashboard">Dashboard</a>
+    <!-- Nội dung chính -->
+    <div class="main-content">
+        <h1 class="text-center wow fadeInUp" data-wow-duration="1s">Quản lý Chi Tiêu</h1>
 
+        <!-- Hộp Dashboard -->
+        <div class="dashboard-box wow zoomIn" data-wow-delay="0.2s">
+            <h3>Tổng Quan</h3>
+            <p>Chi tiêu tháng này: <strong>5.000.000 VND</strong></p>
+        </div>
+
+        <!-- Nút tạo bài viết -->
+        <div class="text-center my-4">
+            <button class="btn btn-primary wow pulse" data-wow-iteration="infinite">Tạo Bài Viết</button>
+        </div>
+
+        <!-- Danh sách bài viết -->
+        <div class="post wow fadeInUp" data-wow-delay="0.3s">
+            <h4>Bài viết 1</h4>
+            <p>Nội dung bài viết về quản lý tài chính...</p>
+        </div>
+
+        <div class="post wow fadeInUp" data-wow-delay="0.5s">
+            <h4>Bài viết 2</h4>
+            <p>Mẹo tiết kiệm hiệu quả...</p>
+        </div>
+    </div>
+
+    <!-- WOW.js -->
+    <script src="../static/js/wow.min.js"></script>
+    <script>
+        new WOW().init();
+    </script>
 </body>
 
 </html>
