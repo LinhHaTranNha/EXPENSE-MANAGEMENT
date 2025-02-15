@@ -442,25 +442,6 @@
       updateProgress();
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const progressBar = document.getElementById("progress-bar-alert");
-      const progressText = document.getElementById("progress-text");
-
-      let currentExpense = parseFloat('{{ total_expense_today }}') || 0;
-      let dailyLimit = parseFloat('{{ total_income_today }}') || 500000;
-
-      /** 📌 Hàm cập nhật progress */
-      function updateProgress() {
-        let expensePercent = (currentExpense / dailyLimit) * 100;
-        expensePercent = Math.min(expensePercent, 100); // Giới hạn tối đa 100%
-
-        progressBar.style.width = expensePercent + "%";
-        progressText.textContent = `${currentExpense.toLocaleString("en-US")} VND`;
-        progressText.setAttribute("data-percent", expensePercent.toFixed(0)); // 🟢 Cập nhật phần trăm
-      }
-
-      updateProgress();
-    });
 
     document.addEventListener("DOMContentLoaded", function () {
       const limitInput = document.getElementById("daily-limit");
@@ -483,6 +464,70 @@
         }
       });
 
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const progressBar = document.getElementById("progress-bar-alert");
+      const progressText = document.getElementById("progress-text");
+      const maxAmountElement = document.getElementById("max-amount");
+      const limitInput = document.getElementById("daily-limit");
+      const setLimitBtn = document.getElementById("set-limit-btn");
+
+      let dailyLimit = localStorage.getItem("dailyLimit")
+        ? parseFloat(localStorage.getItem("dailyLimit"))
+        : 500000; // Mặc định 500,000 VND
+      let currentExpense = parseFloat('{{ total_expense_today }}') || 0; // Lấy từ server
+
+      /** 📌 Hàm định dạng số tiền */
+      function formatNumber(value) {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      /** 📌 Cập nhật progress bar */
+      function updateProgress() {
+        let expensePercent = dailyLimit > 0 ? (currentExpense / dailyLimit) * 100 : 0;
+        expensePercent = Math.min(expensePercent, 100).toFixed(1); // Giới hạn 100% & làm tròn 1 số thập phân
+
+        progressBar.style.width = expensePercent + "%";
+        progressText.textContent = `${formatNumber(currentExpense)} VND (${expensePercent}%)`; // ✅ Hiển thị đúng định dạng
+        progressText.setAttribute("data-percent", expensePercent); // ✅ Cập nhật cho CSS sử dụng
+
+        maxAmountElement.textContent = formatNumber(dailyLimit) + " VND";
+      }
+
+      /** 📌 Gọi API để lấy `dailyLimit` */
+      fetch("/get_daily_limit")
+        .then(response => response.json())
+        .then(data => {
+          dailyLimit = data.limit_amount;
+          localStorage.setItem("dailyLimit", dailyLimit); // Lưu lại để giữ sau khi load lại trang
+          updateProgress();
+        });
+
+      /** 📌 Cập nhật khi nhấn "Save Limit" */
+      setLimitBtn.addEventListener("click", function () {
+        let newLimit = parseFloat(limitInput.value.replace(/,/g, "")) || 500000;
+
+        fetch("/set_daily_limit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ limit_amount: newLimit })
+        })
+          .then(response => response.json())
+          .then(data => {
+            dailyLimit = data.new_limit;
+            localStorage.setItem("dailyLimit", dailyLimit); // Lưu lại sau khi cập nhật
+            updateProgress();
+          });
+      });
+
+      /** 📌 Xử lý nhập số có dấu `,` */
+      limitInput.addEventListener("input", function () {
+        let rawValue = limitInput.value.replace(/,/g, "").replace(/\D/g, ""); // Loại bỏ ký tự không hợp lệ
+        limitInput.value = formatNumber(rawValue);
+      });
+
+      updateProgress(); // Chạy khi trang tải xong
     });
 
 
