@@ -442,6 +442,49 @@
       updateProgress();
     });
 
+    document.addEventListener("DOMContentLoaded", function () {
+      const progressBar = document.getElementById("progress-bar-alert");
+      const progressText = document.getElementById("progress-text");
+
+      let currentExpense = parseFloat('{{ total_expense_today }}') || 0;
+      let dailyLimit = parseFloat('{{ total_income_today }}') || 500000;
+
+      /** 📌 Hàm cập nhật progress */
+      function updateProgress() {
+        let expensePercent = (currentExpense / dailyLimit) * 100;
+        expensePercent = Math.min(expensePercent, 100); // Giới hạn tối đa 100%
+
+        progressBar.style.width = expensePercent + "%";
+        progressText.textContent = `${currentExpense.toLocaleString("en-US")} VND`;
+        progressText.setAttribute("data-percent", expensePercent.toFixed(0)); // 🟢 Cập nhật phần trăm
+      }
+
+      updateProgress();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const limitInput = document.getElementById("daily-limit");
+
+      /** 📌 Hàm định dạng số có dấu phẩy */
+      function formatNumber(value) {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      /** 📌 Xử lý nhập liệu */
+      limitInput.addEventListener("input", function () {
+        let rawValue = limitInput.value.replace(/,/g, "").replace(/\D/g, ""); // Loại bỏ dấu `,` và ký tự không phải số
+        limitInput.value = formatNumber(rawValue); // Cập nhật giá trị hiển thị với dấu `,`
+      });
+
+      /** 📌 Khi mất focus (blur), đảm bảo giá trị hợp lệ */
+      limitInput.addEventListener("blur", function () {
+        if (limitInput.value === "") {
+          limitInput.value = "0";
+        }
+      });
+
+    });
+
 
   </script>
 
