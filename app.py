@@ -11,6 +11,12 @@ import numpy as np
 from io import BytesIO
 from sqlalchemy.sql import case
 from collections import defaultdict
+from flask import session
+import json
+from flask import session, send_file
+from io import BytesIO
+import pandas as pd
+import json
 
 app.config['SECRET_KEY'] = 'linh31052004'
 
@@ -267,6 +273,18 @@ def fin_dashboard():
 
     print(f"DEBUG: Income Today = {total_income_today}, Expense Today = {total_expense_today}, Over Limit = {over_limit_amount}")
 
+
+    # 🟢 Lưu `transactions_current` vào `session`
+    session["transactions_current"] = json.dumps([
+        {
+            "Date": t.transaction_date.strftime("%Y-%m-%d"),
+            "Type": t.transaction_type,
+            "Category": t.category.name,
+            "Amount": float(t.transaction_amount)
+        }
+        for t in transactions_current
+    ])
+
     return render_template(
         "fin_dashboard.html",
         revenue_data=revenue_data,
@@ -502,48 +520,23 @@ def export_summary():
 
     return send_file(output, as_attachment=True, download_name="Expense_Summary.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
+
+
 @app.route("/export_transactions", methods=["GET"])
 @login_required
 def export_transactions():
-    # 🟢 Nhận `start_date` & `end_date` từ request của FE
-    start_date = request.args.get("start_date")
-    end_date = request.args.get("end_date")
+    # 🟢 Lấy dữ liệu từ `session`
+    transactions_data = session.get("transactions_current")
 
-    # 🟢 Nếu không có ngày từ FE, lấy mặc định từ đầu tháng đến hôm nay
-    today = datetime.today().date()
-    if not start_date:
-        start_date = today.replace(day=1)  # Ngày đầu của tháng hiện tại
-    else:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+    if not transactions_data:
+        flash("No transactions found to export.", "danger")
+        return redirect(url_for("fin_dashboard"))
 
-    if not end_date:
-        end_date = today  # Lấy đến ngày hiện tại
-    else:
-        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+    # 🟢 Chuyển từ JSON về danh sách Python
+    transactions = json.loads(transactions_data)
 
-    # 🟢 Lọc giao dịch theo khoảng thời gian FE gửi lên
-    transactions = Transaction.query.filter(
-        Transaction.user_id == current_user.id,
-        cast(Transaction.transaction_date, Date) >= start_date,
-        cast(Transaction.transaction_date, Date) <= end_date
-    ).all()
-
-    # 🟢 Chuyển dữ liệu thành danh sách với đúng kiểu `Type`
-    type_mapping = {
-        "income": "Income",
-        "expense": "Expense",
-        "saving": "Saving"
-    }
-
-    data = [{
-        "Date": t.transaction_date.date(),  # ✅ Định dạng `Date`
-        "Type": type_mapping.get(t.transaction_type, "Other"),  # ✅ Giữ đúng kiểu giao dịch
-        "Category": str(t.category.name),  # ✅ Định dạng `String`
-        "Amount": float(t.transaction_amount)  # ✅ Định dạng `Float`
-    } for t in transactions]
-
-    # 🟢 Tạo DataFrame từ danh sách dữ liệu
-    df = pd.DataFrame(data)
+    # 🟢 Chuyển dữ liệu thành DataFrame
+    df = pd.DataFrame(transactions)
 
     # 🟢 Xuất ra file Excel
     output = BytesIO()
