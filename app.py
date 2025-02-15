@@ -505,23 +505,54 @@ def export_summary():
 @app.route("/export_transactions", methods=["GET"])
 @login_required
 def export_transactions():
-    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+    # 🟢 Nhận `start_date` & `end_date` từ request của FE
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    # 🟢 Nếu không có ngày từ FE, lấy mặc định từ đầu tháng đến hôm nay
+    today = datetime.today().date()
+    if not start_date:
+        start_date = today.replace(day=1)  # Ngày đầu của tháng hiện tại
+    else:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+
+    if not end_date:
+        end_date = today  # Lấy đến ngày hiện tại
+    else:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    # 🟢 Lọc giao dịch theo khoảng thời gian FE gửi lên
+    transactions = Transaction.query.filter(
+        Transaction.user_id == current_user.id,
+        cast(Transaction.transaction_date, Date) >= start_date,
+        cast(Transaction.transaction_date, Date) <= end_date
+    ).all()
+
+    # 🟢 Chuyển dữ liệu thành danh sách với đúng kiểu `Type`
+    type_mapping = {
+        "income": "Income",
+        "expense": "Expense",
+        "saving": "Saving"
+    }
 
     data = [{
-        "Date": t.transaction_date.strftime("%d/%m/%Y"),
-        "Type": t.transaction_type,
-        "Category": t.category.name,
-        "Amount": t.transaction_amount
+        "Date": t.transaction_date.date(),  # ✅ Định dạng `Date`
+        "Type": type_mapping.get(t.transaction_type, "Other"),  # ✅ Giữ đúng kiểu giao dịch
+        "Category": str(t.category.name),  # ✅ Định dạng `String`
+        "Amount": float(t.transaction_amount)  # ✅ Định dạng `Float`
     } for t in transactions]
 
+    # 🟢 Tạo DataFrame từ danh sách dữ liệu
     df = pd.DataFrame(data)
-    
+
+    # 🟢 Xuất ra file Excel
     output = BytesIO()
-    df.to_excel(output, index=False, engine='xlsxwriter')
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="Transactions")
+
     output.seek(0)
 
     return send_file(output, as_attachment=True, download_name="Transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
 
 @app.route("/get_daily_limit", methods=["GET"])
 @login_required
