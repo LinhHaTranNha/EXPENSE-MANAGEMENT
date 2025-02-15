@@ -452,12 +452,12 @@ def export_expense():
     # 🟢 Gộp hai bảng để so sánh chi tiêu giữa tháng này và tháng trước
     df = pd.merge(df_current, df_previous, on="Day", how="outer").fillna(0)
 
-    # 🟢 Tính phần trăm thay đổi
+    # 🟢 Tính phần trăm thay đổi và giữ dưới dạng số (float)
     df["Change (%)"] = df.apply(
-        lambda row: ((row["Current Month Expense"] - row["Previous Month Expense"]) / row["Previous Month Expense"] * 100)
+        lambda row: ((row["Current Month Expense"] - row["Previous Month Expense"]) / row["Previous Month Expense"])
         if row["Previous Month Expense"] != 0 else 0,
         axis=1
-    ).round(2).astype(str) + " %"
+    ).round(2)  # Giữ nguyên kiểu float
 
     # 🟢 Xuất ra file Excel
     output = BytesIO()
