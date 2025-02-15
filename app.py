@@ -509,7 +509,7 @@ def export_summary():
     total_expense = df["Total Expense"].sum()
 
     # 🟢 Tạo cột "% Total Expense"
-    df["% Total Expense"] = (df["Total Expense"] / total_expense * 100).round(2).astype(str) + " %"
+    df["% Total Expense"] = (df["Total Expense"] / total_expense * 100).round(2)
 
     # 🟢 Xuất ra file Excel
     output = BytesIO()
