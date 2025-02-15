@@ -488,35 +488,29 @@ def export_transactions():
     return send_file(output, as_attachment=True, download_name="Transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
-@app.route('/get_daily_limit', methods=['GET'])
+@app.route("/get_daily_limit", methods=["GET"])
 @login_required
 def get_daily_limit():
-    daily_limit = DailyLimit.query.filter_by(user_id=current_user.id).first()
-    if daily_limit:
-        return jsonify({"limit_amount": daily_limit.limit_amount})
+    limit = DailyLimit.query.filter_by(user_id=current_user.id).first()
+    if limit:
+        return jsonify({"limit_amount": limit.limit_amount})
     return jsonify({"limit_amount": 500000})  # Mặc định nếu chưa đặt
 
-
-
-@app.route('/set_daily_limit', methods=['POST'])
+@app.route("/set_daily_limit", methods=["POST"])
 @login_required
 def set_daily_limit():
     data = request.get_json()
-    new_limit = data.get("limit_amount")
+    new_limit = data.get("limit_amount", 500000)
 
-    if new_limit is None or new_limit <= 0:
-        return jsonify({"error": "Invalid limit amount"}), 400
-
-    daily_limit = DailyLimit.query.filter_by(user_id=current_user.id).first()
-    if daily_limit:
-        daily_limit.limit_amount = new_limit
+    limit = DailyLimit.query.filter_by(user_id=current_user.id).first()
+    if limit:
+        limit.limit_amount = new_limit
     else:
-        daily_limit = DailyLimit(user_id=current_user.id, limit_amount=new_limit)
-        db.session.add(daily_limit)
+        limit = DailyLimit(user_id=current_user.id, limit_amount=new_limit)
+        db.session.add(limit)
 
     db.session.commit()
-    return jsonify({"message": "Daily limit updated successfully!", "new_limit": new_limit})
-
+    return jsonify({"new_limit": new_limit})
 
 
 # 🟢 Khởi tạo database trước khi chạy app

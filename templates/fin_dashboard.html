@@ -172,12 +172,14 @@
         <!-- 🟢 Hiển thị số tiền giới hạn -->
         <p class="alert-text">
           Maximum transaction amount for a day:
-          <span id="max-amount" style="color: red;">{{ total_income_today }}</span> VND
+          <span id="max-amount" style="color: red;"></span> VND
         </p>
 
-        <!-- 🟢 Progress bar -->
+        <!-- Progress Bar -->
         <div class="progress-container">
-          <div class="progress-bar" id="progress-bar-alert"></div>
+          <div class="progress-bar" id="progress-bar-alert">
+            <span id="progress-text">0 VND</span> <!-- 🔥 Hiển thị số tiền chi tiêu -->
+          </div>
           <span class="coin-icon">💰</span>
         </div>
 
@@ -185,6 +187,7 @@
         <p id="alert-message" class="alert-warning"></p>
         <p id="over-limit-message" class="alert-exceed" style="display: none;"></p>
       </div>
+
 
     </div>
   </div>
@@ -377,11 +380,12 @@
       const setLimitBtn = document.getElementById("set-limit-btn");
       const maxAmountElement = document.getElementById("max-amount");
       const progressBar = document.getElementById("progress-bar-alert");
+      const progressText = document.getElementById("progress-text");
       const alertMessage = document.getElementById("alert-message");
       const overLimitMessage = document.getElementById("over-limit-message");
 
       let dailyLimit = 500000; // Mặc định
-      let currentExpense = parseFloat("{{ total_expense_today }}") || 0;
+      let currentExpense = parseFloat('{{ total_expense_today }}') || 0;
 
       /** 📌 Lấy giới hạn tiêu từ API */
       fetch("/get_daily_limit")
@@ -395,7 +399,10 @@
       /** 📌 Hàm cập nhật tiến trình */
       function updateProgress() {
         let expensePercent = (currentExpense / dailyLimit) * 100;
-        progressBar.style.width = Math.min(expensePercent, 100) + "%";
+        expensePercent = Math.min(expensePercent, 100);
+
+        progressBar.style.width = expensePercent + "%";
+        progressText.textContent = currentExpense.toLocaleString("en-US") + " VND"; // 🟢 Hiển thị số tiền trên progress bar
 
         if (currentExpense >= dailyLimit) {
           progressBar.style.backgroundColor = "red";

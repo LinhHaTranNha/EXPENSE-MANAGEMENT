@@ -39,8 +39,8 @@ class Goal(db.Model):
 
 class DailyLimit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-    limit_amount = db.Column(db.Float, nullable=False)  # 🔥 Mặc định 500,000 VND/ngày
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True)
+    limit_amount = db.Column(db.Float, nullable=False, default=500000)  # Mặc định 500,000 VND
 
-    # 🔥 Liên kết với User
     user = db.relationship("User", backref=db.backref("daily_limit", uselist=False))
+
