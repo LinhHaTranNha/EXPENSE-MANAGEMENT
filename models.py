@@ -6,6 +6,15 @@ class User(db.Model, UserMixin):  # 🟢 Kế thừa UserMixin
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
 
+    # Liên kết với bảng UserProfile (một-một)
+    profile = db.relationship("UserProfile", backref="user", uselist=False)
+
+class UserProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True)
+    name = db.Column(db.String(150), nullable=False)
+    avatar = db.Column(db.String(255), default="https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg")  # 🆕 Lưu URL ảnh
+
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

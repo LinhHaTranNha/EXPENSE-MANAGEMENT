@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../static/image/money.jpg">
+  <title>Chỉnh Sửa Thông Tin - FinMan</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../static/css/animate.css">
+  <link rel="stylesheet" href="../static/css/style.css">
+
+  <style>
+    /* 📌 Toàn trang */
+    body {
+      background-color: #001307;
+      color: #e0e0e0;
+      font-family: "Poppins", sans-serif;
+    }
+
+    /* 📌 Khối chỉnh sửa */
+    .edit-profile-box {
+      background: #1a3323;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.8s ease-in-out;
+      margin: auto;
+    }
+
+    /* 📌 Ảnh đại diện */
+    .avatar img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .avatar img:hover {
+      transform: scale(1.1);
+    }
+
+    /* 📌 Nút */
+    .btn-custom {
+      width: 100%;
+      font-size: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      transition: 0.3s;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #081c12, #0f2a1b);
+      border: none;
+      color: #fff;
+    }
+
+    .btn-save:hover {
+      background: linear-gradient(135deg, #0f2a1b, #00ff99);
+      transform: translateY(-3px);
+    }
+
+    .btn-back {
+      background: #444;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    .btn-back:hover {
+      background: #666;
+      transform: translateY(-3px);
+    }
+
+    /* 📌 Form nhập */
+    .form-group {
+      text-align: left;
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      outline: none;
+      box-shadow: 0 0 8px #00ff99;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container d-flex vh-100 align-items-center justify-content-center">
+    <div class="edit-profile-box wow fadeInUp" data-wow-duration="1s">
+      <h2 class="mb-3">Chỉnh Sửa Thông Tin</h2>
+
+      <!-- Ảnh đại diện -->
+      <div class="avatar wow bounceIn">
+        <img src="{{ user_profile.avatar }}" alt="Avatar" id="avatarPreview">
+      </div>
+
+      <!-- Form chỉnh sửa -->
+      <form method="POST">
+        <div class="form-group">
+          <label>Tên hiển thị</label>
+          <input type="text" name="name" class="form-control" value="{{ user_profile.name }}">
+        </div>
+
+        <div class="form-group">
+          <label>URL Ảnh Đại Diện</label>
+          <input type="text" name="avatar_url" class="form-control" value="{{ user_profile.avatar }}">
+        </div>
+
+        <button type="submit" class="btn btn-custom btn-save">Lưu Thay Đổi</button>
+      </form>
+
+      <!-- Nút quay lại Dashboard -->
+      <a href="{{ url_for('dashboard') }}" class="btn btn-custom btn-back">Quay lại Dashboard</a>
+    </div>
+  </div>
+
+  <!-- WOW.js -->
+  <script src="../static/js/wow.min.js"></script>
+  <script>
+    new WOW().init();
+
+    // Hiển thị ảnh avatar ngay khi nhập URL
+    document.querySelector("input[name='avatar_url']").addEventListener("input", function () {
+      document.getElementById("avatarPreview").src = this.value;
+    });
+  </script>
+</body>
+
+</html>

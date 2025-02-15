@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from database import db, app
-from models import User, Expense, Transaction, Category, Goal, DailyLimit
+from models import User, Expense, Transaction, Category, Goal, DailyLimit, UserProfile
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
@@ -571,6 +571,37 @@ def set_daily_limit():
     db.session.commit()
     return jsonify({"new_limit": new_limit})
 
+
+# 📌 Route hiển thị trang chỉnh sửa thông tin
+@app.route("/edit_profile", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    # 🔹 Tìm hồ sơ người dùng
+    user_profile = UserProfile.query.filter_by(user_id=current_user.id).first()
+
+    # 🔹 Nếu chưa có, tạo mới UserProfile
+    if not user_profile:
+        user_profile = UserProfile(user_id=current_user.id, name=current_user.username, avatar="https://example.com/default-avatar.jpg")
+        db.session.add(user_profile)
+        db.session.commit()
+
+    if request.method == "POST":
+        new_name = request.form.get("name")
+        avatar_url = request.form.get("avatar_url")
+
+        # 🔹 Cập nhật tên
+        if new_name:
+            user_profile.name = new_name
+        
+        # 🔹 Cập nhật URL avatar
+        if avatar_url:
+            user_profile.avatar = avatar_url
+
+        db.session.commit()
+        flash("Cập nhật thông tin thành công!", "success")
+        return redirect(url_for("edit_profile"))
+
+    return render_template("edit_profile.html", user_profile=user_profile)
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():
