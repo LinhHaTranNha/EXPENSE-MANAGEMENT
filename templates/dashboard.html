@@ -16,7 +16,6 @@
         /* 📌 Toàn trang */
         body {
             background-color: #001307;
-            /* Màu nền đậm */
             color: #e0e0e0;
             font-family: "Poppins", sans-serif;
         }
@@ -57,36 +56,75 @@
             padding: 20px;
         }
 
-        .dashboard-box {
-            background: #1a3323;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            text-align: center;
+        /* 📌 Avatar góc phải */
+        .user-avatar {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* 📌 Nút tạo bài viết */
-        .btn-primary {
-            background: linear-gradient(135deg, #081c12, #0f2a1b);
-            border: none;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 8px;
-            transition: 0.3s;
+        .user-avatar img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #00ff99;
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #0f2a1b, #00ff99);
-            transform: translateY(-3px);
-        }
-
-        /* 📌 Danh sách bài viết */
+        /* 📌 Bài viết */
         .post {
             background: #1a3323;
             padding: 15px;
             margin-top: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #00ff99;
+        }
+
+        .post-header .post-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-content img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        /* 📌 Nút tương tác */
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .post-actions button {
+            background: none;
+            border: none;
+            color: #00ff99;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .post-actions button:hover {
+            color: #fff;
         }
     </style>
 </head>
@@ -101,26 +139,39 @@
         <a href="/edit_profile">Thông tin cá nhân</a>
     </div>
 
+    <!-- Avatar góc phải -->
+    <div class="user-avatar">
+        <img src="{{ current_user_avatar }}" alt="Avatar">
+        <span>{{ current_user.username }}</span>
+    </div>
+
     <!-- Nội dung chính -->
     <div class="main-content">
         <h1 class="text-center wow fadeInUp" data-wow-duration="1s">Quản lý Chi Tiêu</h1>
 
-        <!-- Hộp Dashboard -->
-        <div class="dashboard-box wow zoomIn" data-wow-delay="0.2s">
-            <h3>Tổng Quan</h3>
-            <p>Chi tiêu tháng này: <strong>5.000.000 VND</strong></p>
-        </div>
-
         <!-- Danh sách bài viết -->
+        {% for post in posts %}
         <div class="post wow fadeInUp" data-wow-delay="0.3s">
-            <h4>Bài viết 1</h4>
-            <p>Nội dung bài viết về quản lý tài chính...</p>
+            <div class="post-header">
+                <img src="{{ post.avatar }}" alt="Avatar">
+                <div class="post-info">
+                    <strong>{{ post.name }}</strong>
+                    <small>{{ post.created_at.strftime('%H:%M - %d/%m/%Y') }}</small>
+                </div>
+            </div>
+            <p>{{ post.content }}</p>
+            {% if post.image_url %}
+            <div class="post-content">
+                <img src="{{ post.image_url }}" alt="Post Image">
+            </div>
+            {% endif %}
+            <div class="post-actions">
+                <button>👍 Thích</button>
+                <button>💬 Bình luận</button>
+                <button>🔗 Chia sẻ</button>
+            </div>
         </div>
-
-        <div class="post wow fadeInUp" data-wow-delay="0.5s">
-            <h4>Bài viết 2</h4>
-            <p>Mẹo tiết kiệm hiệu quả...</p>
-        </div>
+        {% endfor %}
     </div>
 
     <!-- WOW.js -->

@@ -302,14 +302,36 @@ def fin_dashboard():
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    form = TransactionForm()  # 🟢 Tạo form và truyền vào template
+    form = TransactionForm()  # 🟢 Form nhập giao dịch
     expenses = Transaction.query.filter_by(user_id=current_user.id).all()
 
+    # 📌 Tính tổng số tiền đã chi tiêu
     total_spent = sum(expense.transaction_amount for expense in expenses)
+
+    # 📌 Lấy danh sách bài viết, kèm thông tin người đăng
+    posts = (
+        Post.query
+        .join(User, User.id == Post.user_id)
+        .join(UserProfile, UserProfile.user_id == User.id)
+        .add_columns(Post.id, Post.title, Post.content, Post.image_url, Post.created_at, 
+                     UserProfile.name, UserProfile.avatar)  # 🟢 Lấy tên & avatar từ UserProfile
+        .order_by(Post.created_at.desc())
+        .all()
+    )
+
+    # 📌 Chuẩn bị dữ liệu biểu đồ
     categories = [expense.category.name for expense in expenses]
     amounts = [expense.transaction_amount for expense in expenses]
 
-    return render_template("dashboard.html", form=form, categories=categories, amounts=amounts, total_spent=total_spent)
+    return render_template(
+        "dashboard.html",
+        form=form,
+        categories=categories,
+        amounts=amounts,
+        total_spent=total_spent,
+        posts=posts,  # 🟢 Truyền bài viết vào template
+        current_user_avatar=current_user.profile.avatar  # 🟢 Hiển thị avatar user ở góc phải
+    )
 
 @app.route("/add_expense", methods=["POST"])
 @login_required
