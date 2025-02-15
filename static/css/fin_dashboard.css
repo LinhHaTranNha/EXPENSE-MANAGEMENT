@@ -615,6 +615,7 @@ select {
   position: relative;
   border-radius: 10px;
   transition: width 0.5s ease-in-out;
+  color: white;
 }
 
 /* 📌 Số tiền trên Progress Bar */
