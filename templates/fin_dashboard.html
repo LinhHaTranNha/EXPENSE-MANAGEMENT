@@ -24,7 +24,7 @@
           <canvas id="revenueChart"></canvas>
           <!-- 🟢 REVENUE EXPORT -->
           <div class="export-container">
-            <a href="{{ url_for('export_revenue') }}" class="export-btn">📂 Export Revenue</a>
+            <a href="{{ url_for('export.export_revenue') }}" class="export-btn">📂 Export Revenue</a>
           </div>
         </div>
       </div>
@@ -36,7 +36,7 @@
           <canvas id="expenseChart"></canvas>
           <!-- 🟢 EXPENSE EXPORT -->
           <div class="export-container">
-            <a href="{{ url_for('export_expense') }}" class="export-btn">📂 Export Expense</a>
+            <a href="{{ url_for('export.export_expense') }}" class="export-btn">📂 Export Expense</a>
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@
           </div>
           <!-- 🟢 SUMMARY EXPORT -->
           <div class="export-container">
-            <a href="{{ url_for('export_summary') }}" class="export-btn">📂 Export Summary</a>
+            <a href="{{ url_for('export.export_summary') }}" class="export-btn">📂 Export Summary</a>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@
         <div class="card mb-4">
           <!-- 🟢 Nút Add Transaction -->
           <div class="add-transaction-container">
-            <a href="{{ url_for('add_transaction') }}" class="add-transaction-btn">
+            <a href="{{ url_for('transactions.add_transaction') }}" class="add-transaction-btn">
               ➕ Add Transaction
             </a>
           </div>
@@ -117,7 +117,7 @@
 
           <!-- 🟢 TRANSACTION HISTORY EXPORT -->
           <div class="export-container">
-            <a href="{{ url_for('export_transactions') }}" class="export-btn">📂 Export Transactions</a>
+            <a href="{{ url_for('export.export_transactions') }}" class="export-btn">📂 Export Transactions</a>
           </div>
         </div>
       </div>
