@@ -10,6 +10,7 @@ from flask import send_file
 import numpy as np
 from io import BytesIO
 from sqlalchemy.sql import case
+from collections import defaultdict
 
 app.config['SECRET_KEY'] = 'linh31052004'
 
@@ -180,28 +181,26 @@ def fin_dashboard():
     # 🟢 Tạo danh sách ngày từ start_date → end_date
     days = list(range(start_date.day, end_date.day + 1))
 
-    # 🟢 Tạo dictionary lưu tổng income và expense theo từng ngày
-    revenue_current = {day: 0 for day in days}
-    expense_current = {day: 0 for day in days}
-    revenue_previous = {day: 0 for day in days}
-    expense_previous = {day: 0 for day in days}
+    # 🟢 Dùng defaultdict để tránh KeyError
+    revenue_current = defaultdict(int)
+    expense_current = defaultdict(int)
+    revenue_previous = defaultdict(int)
+    expense_previous = defaultdict(int)
 
-    # 🟢 Cập nhật dữ liệu từng ngày (KIỂM TRA `day` TRƯỚC KHI CỘNG)
+    # 🟢 Cập nhật dữ liệu từng ngày
     for t in transactions_current:
         day = t.transaction_date.day
-        if day not in revenue_current:  # 🔥 Nếu ngày chưa có, thêm vào dictionary
-            revenue_current[day] = 0
-            expense_current[day] = 0
-        revenue_current[day] += max(0, t.transaction_amount)  # Thu nhập
-        expense_current[day] += abs(min(0, t.transaction_amount))  # Chi tiêu
+        if t.transaction_type == "income":
+            revenue_current[day] += t.transaction_amount  # Thu nhập
+        elif t.transaction_type == "expense":
+            expense_current[day] += abs(t.transaction_amount)  # Chi tiêu
 
     for t in transactions_previous:
         day = t.transaction_date.day
-        if day not in revenue_previous:  # 🔥 Nếu ngày chưa có, thêm vào dictionary
-            revenue_previous[day] = 0
-            expense_previous[day] = 0
-        revenue_previous[day] += max(0, t.transaction_amount)  # Thu nhập tháng trước
-        expense_previous[day] += abs(min(0, t.transaction_amount))  # Chi tiêu tháng trước
+        if t.transaction_type == "income":
+            revenue_previous[day] += t.transaction_amount  # Thu nhập tháng trước
+        elif t.transaction_type == "expense":
+            expense_previous[day] += abs(t.transaction_amount)  # Chi tiêu tháng trước
 
     # 🟢 Chuyển dữ liệu thành danh sách để hiển thị trên biểu đồ
     revenue_data = {
@@ -214,12 +213,11 @@ def fin_dashboard():
         "previous": [expense_previous[day] for day in days]
     }
 
-        # 🟢 Tổng hợp chi tiêu theo danh mục (Chỉ tính Expense)
-    category_summary = {}
+    # 🟢 Tổng hợp chi tiêu theo danh mục (Chỉ tính Expense)
+    category_summary = defaultdict(int)
     for t in transactions_current:
         if t.transaction_type == "expense":
-            category_name = t.category.name
-            category_summary[category_name] = category_summary.get(category_name, 0) + abs(t.transaction_amount)
+            category_summary[t.category.name] += abs(t.transaction_amount)
 
     # 🟢 Chuyển dữ liệu thành danh sách JSON để render trong frontend
     summary_data = {
@@ -243,7 +241,7 @@ def fin_dashboard():
         cast(Transaction.transaction_date, Date) == today
     ).scalar() or 0  # Nếu None, gán 0
 
-     # ✅ Chuyển Expense thành số dương nếu cần
+    # ✅ Chuyển Expense thành số dương nếu cần
     total_expense_today = abs(total_expense_today)
 
     # 🛑 Tính số tiền vượt quá (nếu có)
@@ -264,7 +262,6 @@ def fin_dashboard():
         total_expense_today=total_expense_today,
         over_limit_amount=over_limit_amount  # Gửi số tiền vượt quá xuống frontend
     )
-
 
 
 @app.route("/dashboard", methods=["GET", "POST"])
