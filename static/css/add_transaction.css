@@ -1,242 +1,212 @@
-/* 📌 Tổng quan */
+/* 📌 Toàn trang */
 body {
-  background-color: #001307; /* Màu nền tối */
-  color: #e0e0e0; /* Màu chữ sáng */
+  background-color: #001307;
+  color: #e0e0e0;
   font-family: "Poppins", sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
 }
 
-/* 📌 Container tổng */
+/* 📌 Container chính */
 .transaction-container {
+  background: #1a3323;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
   text-align: center;
-  width: 70%;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.8s ease-in-out;
+  margin: 50px auto;
 }
 
 /* 📌 Tiêu đề */
 .transaction-container h2 {
   color: #00ff99;
-  font-size: 28px;
+  font-size: 24px;
   margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 /* 📌 Mô tả */
 .transaction-container p {
-  color: #a0a0a0;
-  font-size: 16px;
+  font-size: 14px;
+  color: #bdc3c7;
   margin-bottom: 20px;
 }
 
-/* 📌 Form */
-.transaction-form {
-  background: rgba(26, 51, 35, 0.9); /* Màu xanh đậm với hiệu ứng mờ */
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 255, 153, 0.3);
-  max-width: 500px;
-  width: 100%;
-  backdrop-filter: blur(10px);
+/* 📌 Nút Back to Dashboard */
+.back-dashboard-container {
   text-align: left;
-  animation: fadeIn 0.8s ease-in-out;
-  margin: 0 auto;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.back-dashboard-btn {
+  background: linear-gradient(135deg, #081c12, #0f2a1b);
+  color: #00ff99;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.3s;
+  border: none;
+}
+
+.back-dashboard-btn:hover {
+  background: linear-gradient(135deg, #0f2a1b, #00ff99);
+  color: #fff;
+  transform: translateY(-3px);
+}
+
+/* 📌 Form nhập giao dịch */
+.transaction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 📌 Label */
+.input-icon label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #00ff99;
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* 📌 Input field */
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 16px;
+  transition: 0.3s;
+  border: 1px solid;
+}
+
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  outline: none;
+  box-shadow: 0 0 8px #00ff99;
+}
+
+/* 📌 Select dropdown */
+select.form-control {
+  appearance: none;
+  cursor: pointer;
+  background: url("../static/image/dropdown.svg") no-repeat right 12px center;
+  background-size: 12px;
+}
+
+/* 📌 Ô nhập New Category (ẩn mặc định) */
+#newCategoryContainer {
+  display: none;
+}
+
+/* 📌 Button Submit */
+.transaction-form button {
+  background: linear-gradient(135deg, #081c12, #0f2a1b);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 16px;
+  width: 100%;
+}
+
+.transaction-form button:hover {
+  background: linear-gradient(135deg, #0f2a1b, #00ff99);
+  transform: translateY(-3px);
 }
 
 /* 📌 Hiệu ứng xuất hiện */
 @keyframes fadeIn {
   from {
-    opacity: 0;
-    transform: scale(0.9);
+      opacity: 0;
+      transform: translateY(-10px);
   }
   to {
-    opacity: 1;
-    transform: scale(1);
+      opacity: 1;
+      transform: translateY(0);
   }
 }
 
-/* 📌 Ô nhập liệu và select */
-.transaction-form p {
-  margin-bottom: 20px;
-}
-
-.transaction-form label {
-  font-weight: bold;
-  color: #00ff99; /* Màu xanh neon */
-  display: block;
-  margin-bottom: 5px;
-}
-
-/* 📌 Input & Select */
-.transaction-form input,
-.transaction-form select {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e0e0e0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 14px;
-  border-radius: 8px;
-  width: 100%;
-  font-size: 16px;
-  transition: 0.3s;
-}
-
-/* 📌 Hiệu ứng khi focus */
-.transaction-form input:focus,
-.transaction-form select:focus {
-  background: rgba(255, 255, 255, 0.2);
-  outline: none;
-  box-shadow: 0 0 10px #00ff99;
-}
-
-/* 📌 Placeholder */
-.transaction-form input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-  transition: 0.3s;
-}
-
-.transaction-form input:focus::placeholder {
-  color: rgba(255, 255, 255, 0.2);
-}
-
-/* 📌 Nút submit */
-.transaction-form button {
-  background: linear-gradient(135deg, #081c12, #0f2a1b);
-  border: none;
-  font-size: 18px;
-  padding: 14px;
-  border-radius: 8px;
-  transition: 0.3s;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100%;
-  box-shadow: 0px 4px 10px rgba(0, 255, 153, 0.4);
-}
-
-/* 📌 Hiệu ứng hover */
-.transaction-form button:hover {
-  background: linear-gradient(135deg, #0f2a1b, #00ff99);
-  transform: translateY(-3px);
-  box-shadow: 0px 6px 12px rgba(0, 255, 153, 0.5);
-}
-
-/* 📌 Hiệu ứng khi nhấn */
-.transaction-form button:active {
-  transform: scale(0.98);
-}
-
-/* 📌 Icon cho ô nhập liệu */
-.input-icon {
-  position: relative;
-}
-
-.input-icon input,
-.input-icon select {
-  padding-left: 40px; /* Dành chỗ cho icon */
-}
-
-.input-icon i {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #00ff99;
+/* 📌 Responsive cho màn hình nhỏ */
+@media (max-width: 600px) {
+  .transaction-container {
+      width: 90%;
+      padding: 20px;
+  }
 }
 
 
-/* 📌 Căn chỉnh lại dropdown */
-.transaction-form select {
+/* 📌 Tùy chỉnh giao diện của dropdown */
+select.form-control {
   appearance: none;
-  background: rgba(255, 255, 255, 0.1);
+  background-color: #1a3323;
   color: #e0e0e0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 14px;
+  border: 1px solid white;
+  padding: 12px;
   border-radius: 8px;
-  width: 100%;
   font-size: 16px;
-  transition: 0.3s;
+  font-family: "Poppins", sans-serif;
   cursor: pointer;
-  font-family: "Poppins", sans-serif;
+  width: 100%;
+  transition: all 0.3s ease-in-out;
 }
 
-/* 📌 Hiệu ứng focus khi chọn */
-.transaction-form select:focus {
-  background: rgba(255, 255, 255, 0.2);
+/* 📌 Khi hover vào select */
+select.form-control:hover {
+  border-color: #00cc77;
+}
+
+/* 📌 Khi focus vào select */
+select.form-control:focus {
   outline: none;
-  box-shadow: 0 0 10px #00ff99;
+  /* border-color: #00ff99; */
+  box-shadow: 0 0 8px rgba(0, 255, 153, 0.5);
 }
 
-/* 📌 Thiết lập dropdown khi mở */
-.transaction-form select option {
-  background: #001307; /* Màu nền tối */
+/* 📌 Dropdown icon mặc định của hệ thống (ẩn đi để tự thiết kế) */
+select.form-control::-ms-expand {
+  display: none;
+}
+
+/* 📌 Tạo icon dropdown custom */
+select.form-control {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2300ff99'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
+
+/* 📌 Tùy chỉnh menu dropdown */
+select.form-control option {
+  background: #1a3323;
   color: #e0e0e0;
+  font-size: 16px;
   padding: 10px;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 📌 Hiệu ứng khi hover vào option */
-.transaction-form select option:hover {
-  background: #0f2a1b;
-  color: #00ff99;
-}
+/* 📌 Khi chọn một option
+select.form-control option:checked {
+  background: #00ff99;
+  color: #001307;
+} */
 
-/* 📌 Định dạng màu cho các option đã disabled */
-.transaction-form select option:disabled {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-/* 📌 Định dạng border khi dropdown mở */
-.transaction-form select:active,
-.transaction-form select:focus {
-  box-shadow: 0 0 10px #00ff99;
-  border: 1px solid #00ff99;
-}
-
-/* 📌 Fix lỗi font chữ */
-.transaction-form select,
-.transaction-form select option {
-  font-family: "Poppins", sans-serif;
-}
-
-/* 📌 Thêm hiệu ứng hover cho toàn bộ select */
-.transaction-form select:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-
-/* 📌 Container chứa nút */
-.back-dashboard-container {
-  text-align: center;
-  margin-top: 15px;
-}
-
-/* 📌 Nút Back to Dashboard */
-.back-dashboard-btn {
-  background: linear-gradient(135deg, #FFA500, #FF8C00); /* Màu cam nổi bật */
-  color: white;
-  font-size: 16px;
-  padding: 12px 18px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  display: inline-block;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* 📌 Hover */
-.back-dashboard-btn:hover {
-  background: linear-gradient(135deg, #FF8C00, #FF7F00);
-  transform: translateY(-2px);
-  box-shadow: 0px 6px 12px rgba(255, 140, 0, 0.3);
-}
-
-/* 📌 Active */
-.back-dashboard-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
-}
+/* 📌 Khi hover vào option */
+/* select.form-control option:hover {
+  background: #00cc77;
+  color: #001307;
+} */
