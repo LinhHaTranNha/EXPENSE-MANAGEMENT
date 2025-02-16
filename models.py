@@ -55,7 +55,6 @@ class DailyLimit(db.Model):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(255), nullable=True)  # 🔹 Cột ảnh bài viết
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)

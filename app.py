@@ -299,22 +299,28 @@ def fin_dashboard():
         over_limit_amount=over_limit_amount  # Gửi số tiền vượt quá xuống frontend
     )
 
+
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
     form = TransactionForm()  # 🟢 Form nhập giao dịch
     expenses = Transaction.query.filter_by(user_id=current_user.id).all()
 
+    # 📌 Lấy thông tin user profile
+    user_profile = UserProfile.query.filter_by(user_id=current_user.id).first()
+
     # 📌 Tính tổng số tiền đã chi tiêu
     total_spent = sum(expense.transaction_amount for expense in expenses)
 
-    # 📌 Lấy danh sách bài viết, kèm thông tin người đăng
+    # 📌 Lấy danh sách bài viết
     posts = (
         Post.query
         .join(User, User.id == Post.user_id)
         .join(UserProfile, UserProfile.user_id == User.id)
-        .add_columns(Post.id, Post.title, Post.content, Post.image_url, Post.created_at, 
-                     UserProfile.name, UserProfile.avatar)  # 🟢 Lấy tên & avatar từ UserProfile
+        .add_columns(
+            Post.id, Post.content, Post.image_url, Post.created_at, 
+            UserProfile.name, UserProfile.avatar
+        )
         .order_by(Post.created_at.desc())
         .all()
     )
@@ -329,9 +335,11 @@ def dashboard():
         categories=categories,
         amounts=amounts,
         total_spent=total_spent,
-        posts=posts,  # 🟢 Truyền bài viết vào template
-        current_user_avatar=current_user.profile.avatar  # 🟢 Hiển thị avatar user ở góc phải
+        posts=posts,
+        current_user_avatar=user_profile.avatar if user_profile else "",  # 🟢 Avatar user hiện tại
+        current_user_name=user_profile.name if user_profile else current_user.username  # 🟢 Hiển thị tên user profile
     )
+
 
 @app.route("/add_expense", methods=["POST"])
 @login_required

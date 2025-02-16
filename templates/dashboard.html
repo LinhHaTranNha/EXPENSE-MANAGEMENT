@@ -142,8 +142,9 @@
     <!-- Avatar góc phải -->
     <div class="user-avatar">
         <img src="{{ current_user_avatar }}" alt="Avatar">
-        <span>{{ current_user.username }}</span>
+        <span>{{ current_user_name }}</span> <!-- ✅ Hiển thị tên từ UserProfile -->
     </div>
+
 
     <!-- Nội dung chính -->
     <div class="main-content">
@@ -151,27 +152,21 @@
 
         <!-- Danh sách bài viết -->
         {% for post in posts %}
-        <div class="post wow fadeInUp" data-wow-delay="0.3s">
-            <div class="post-header">
-                <img src="{{ post.avatar }}" alt="Avatar">
-                <div class="post-info">
-                    <strong>{{ post.name }}</strong>
-                    <small>{{ post.created_at.strftime('%H:%M - %d/%m/%Y') }}</small>
+        <div class="post wow fadeInUp">
+            <div class="d-flex align-items-center">
+                <img src="{{ post.avatar }}" alt="Avatar" class="rounded-circle" width="50" height="50">
+                <div class="ml-3">
+                    <strong>{{ post.name }}</strong> <!-- ✅ Hiển thị tên của người đăng bài -->
+                    <p class="text-muted small">{{ post.created_at.strftime('%H:%M - %d/%m/%Y') }}</p>
                 </div>
             </div>
             <p>{{ post.content | safe }}</p>
             {% if post.image_url %}
-            <div class="post-content">
-                <img src="{{ post.image_url }}" alt="Post Image">
-            </div>
+            <img src="{{ post.image_url }}" class="img-fluid mt-2" alt="Post Image">
             {% endif %}
-            <div class="post-actions">
-                <button>👍 Thích</button>
-                <button>💬 Bình luận</button>
-                <button>🔗 Chia sẻ</button>
-            </div>
         </div>
         {% endfor %}
+
     </div>
 
     <!-- WOW.js -->
