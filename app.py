@@ -309,6 +309,12 @@ def fin_dashboard():
 def dashboard():
     form = TransactionForm()
 
+    # ✅ Kiểm tra nếu user chưa có profile, thì tạo mới
+    if not current_user.profile:
+        new_profile = UserProfile(user_id=current_user.id, name=current_user.username)
+        db.session.add(new_profile)
+        db.session.commit()
+
     # ✅ Truy vấn số lượng likes và comments trước
     like_subquery = (
         db.session.query(Like.post_id, db.func.count(Like.id).label("like_count"))
@@ -329,13 +335,13 @@ def dashboard():
             Post.content,
             Post.image_url,
             Post.created_at,
-            UserProfile.name,
-            UserProfile.avatar,
-            db.func.coalesce(like_subquery.c.like_count, 0).label("like_count"),  # ✅ Xử lý null bằng COALESCE
+            db.func.coalesce(UserProfile.name, "Người dùng").label("name"),  # ✅ Nếu NULL thì thay bằng "Người dùng"
+            db.func.coalesce(UserProfile.avatar, "https://via.placeholder.com/40").label("avatar"),  # ✅ Ảnh mặc định
+            db.func.coalesce(like_subquery.c.like_count, 0).label("like_count"),
             db.func.coalesce(comment_subquery.c.comment_count, 0).label("comment_count")
         )
         .join(User, User.id == Post.user_id)
-        .join(UserProfile, UserProfile.user_id == User.id)
+        .outerjoin(UserProfile, UserProfile.user_id == User.id)  # ✅ Dùng outerjoin để tránh lỗi nếu profile không tồn tại
         .outerjoin(like_subquery, like_subquery.c.post_id == Post.id)
         .outerjoin(comment_subquery, comment_subquery.c.post_id == Post.id)
         .order_by(Post.created_at.desc())
@@ -346,10 +352,9 @@ def dashboard():
         "dashboard.html",
         form=form,
         posts=posts,
-        current_user_avatar=current_user.profile.avatar,
-        current_user_name=current_user.profile.name
+        current_user_avatar=current_user.profile.avatar if current_user.profile else "https://via.placeholder.com/40",
+        current_user_name=current_user.profile.name if current_user.profile else "Người dùng"
     )
-
 
 @app.route("/add_expense", methods=["POST"])
 @login_required
