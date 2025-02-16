@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="../static/image/money.jpg" />
+    <link rel="icon" type="image/png" href="../static/image/money.jpg">
     <title>Dashboard - FinMan</title>
 
     <!-- Bootstrap -->
@@ -18,6 +18,8 @@
             background-color: #001307;
             color: #e0e0e0;
             font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
         /* 📌 Sidebar */
@@ -33,6 +35,7 @@
 
         .sidebar h2 {
             color: #00ff99;
+            text-align: center;
         }
 
         .sidebar a {
@@ -73,6 +76,11 @@
             border: 2px solid #00ff99;
         }
 
+        .user-avatar span {
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
         /* 📌 Bài viết */
         .post {
             background: #1a3323;
@@ -80,8 +88,11 @@
             margin-top: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
+        /* 📌 Header của bài viết */
         .post-header {
             display: flex;
             align-items: center;
@@ -96,35 +107,73 @@
             border: 2px solid #00ff99;
         }
 
-        .post-header .post-info {
+        .post-info {
             display: flex;
             flex-direction: column;
         }
 
-        .post-content img {
+        .post-info strong {
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .post-info p {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        /* 📌 Nội dung bài viết */
+        .post-content {
+            max-height: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-wrap: break-word;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .post-content.expanded {
+            max-height: none;
+        }
+
+        /* 📌 Ảnh bài viết */
+        .post-image {
+            max-height: 300px;
             width: 100%;
             border-radius: 10px;
             margin-top: 10px;
         }
 
-        /* 📌 Nút tương tác */
-        .post-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-
-        .post-actions button {
-            background: none;
-            border: none;
+        /* 📌 Nút "Xem thêm" */
+        .btn-show-more {
+            display: block;
+            margin-top: 5px;
             color: #00ff99;
-            font-size: 14px;
+            border: none;
+            background: none;
             cursor: pointer;
-            transition: 0.3s;
+            font-size: 14px;
         }
 
-        .post-actions button:hover {
-            color: #fff;
+        .btn-show-more:hover {
+            text-decoration: underline;
+        }
+
+        /* 📌 Hiệu ứng động */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post {
+            animation: fadeInUp 0.5s ease-in-out;
         }
     </style>
 </head>
@@ -142,9 +191,8 @@
     <!-- Avatar góc phải -->
     <div class="user-avatar">
         <img src="{{ current_user_avatar }}" alt="Avatar">
-        <span>{{ current_user_name }}</span> <!-- ✅ Hiển thị tên từ UserProfile -->
+        <span>{{ current_user_name }}</span>
     </div>
-
 
     <!-- Nội dung chính -->
     <div class="main-content">
@@ -153,26 +201,66 @@
         <!-- Danh sách bài viết -->
         {% for post in posts %}
         <div class="post wow fadeInUp">
-            <div class="d-flex align-items-center">
-                <img src="{{ post.avatar }}" alt="Avatar" class="rounded-circle" width="50" height="50">
-                <div class="ml-3">
-                    <strong>{{ post.name }}</strong> <!-- ✅ Hiển thị tên của người đăng bài -->
+            <div class="post-header">
+                <img src="{{ post.avatar }}" alt="Avatar">
+                <div class="post-info">
+                    <strong>{{ post.name }}</strong>
                     <p class="text-muted small">{{ post.created_at.strftime('%H:%M - %d/%m/%Y') }}</p>
                 </div>
             </div>
-            <p>{{ post.content | safe }}</p>
+
+            <!-- Nội dung bài viết -->
+            <div class="post-content" id="post-content-{{ post.id }}">
+                {{ post.content | safe }}
+            </div>
+
+            <!-- Nút "Xem thêm" -->
+            <button class="btn-show-more" data-post-id="{{ post.id }}">Xem thêm</button>
+
             {% if post.image_url %}
-            <img src="{{ post.image_url }}" class="img-fluid mt-2" alt="Post Image">
+            <img src="{{ post.image_url }}" class="img-fluid mt-2 post-image" alt="Post Image">
             {% endif %}
         </div>
         {% endfor %}
-
     </div>
 
     <!-- WOW.js -->
     <script src="../static/js/wow.min.js"></script>
     <script>
         new WOW().init();
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".post-content").forEach(post => {
+                let text = post.innerHTML.trim();
+
+                if (text.length > 300) {
+                    post.dataset.fullContent = text;
+                    post.innerHTML = text.substring(0, 300) + "...";
+                    post.nextElementSibling.style.display = "inline-block"; // ✅ Hiển thị nút nếu cần
+                } else {
+                    post.nextElementSibling.style.display = "none"; // ✅ Ẩn nút nếu bài viết ngắn
+                }
+            });
+
+            document.querySelectorAll(".btn-show-more").forEach(button => {
+                button.addEventListener("click", function () {
+                    let postId = this.dataset.postId;
+                    let postContent = document.getElementById("post-content-" + postId);
+
+                    if (!postContent.dataset.fullContent) return; // ✅ Ngăn lỗi undefined nếu không có dữ liệu
+
+                    if (this.innerText === "Xem thêm") {
+                        postContent.classList.add("expanded");
+                        postContent.innerHTML = postContent.dataset.fullContent;
+                        this.innerText = "Thu gọn";
+                    } else {
+                        postContent.classList.remove("expanded");
+                        postContent.innerHTML = postContent.dataset.fullContent.substring(0, 300) + "...";
+                        this.innerText = "Xem thêm";
+                    }
+                });
+            });
+        });
+
     </script>
 </body>
 
