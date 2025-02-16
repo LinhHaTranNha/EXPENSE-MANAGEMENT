@@ -335,20 +335,20 @@ def dashboard():
         .subquery()
     )
 
-    # ✅ Truy vấn bài viết + JOIN subqueries
     posts = (
         db.session.query(
             Post.id,
+            Post.user_id,  # 🔥 Thêm dòng này để lấy ID người tạo bài viết
             Post.content,
             Post.image_url,
             Post.created_at,
-            db.func.coalesce(UserProfile.name, "Người dùng").label("name"),  # ✅ Nếu NULL thì thay bằng "Người dùng"
-            db.func.coalesce(UserProfile.avatar, "https://via.placeholder.com/40").label("avatar"),  # ✅ Ảnh mặc định
+            db.func.coalesce(UserProfile.name, "Người dùng").label("name"),
+            db.func.coalesce(UserProfile.avatar, "https://via.placeholder.com/40").label("avatar"),
             db.func.coalesce(like_subquery.c.like_count, 0).label("like_count"),
             db.func.coalesce(comment_subquery.c.comment_count, 0).label("comment_count")
         )
         .join(User, User.id == Post.user_id)
-        .outerjoin(UserProfile, UserProfile.user_id == User.id)  # ✅ Dùng outerjoin để tránh lỗi nếu profile không tồn tại
+        .outerjoin(UserProfile, UserProfile.user_id == User.id)
         .outerjoin(like_subquery, like_subquery.c.post_id == Post.id)
         .outerjoin(comment_subquery, comment_subquery.c.post_id == Post.id)
         .order_by(Post.created_at.desc())
@@ -749,6 +749,39 @@ def get_comments(post_id):
         })
 
     return jsonify({"comments": result})
+
+@app.route("/delete_post/<int:post_id>", methods=["DELETE"])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    if post.user_id != current_user.id:
+        return jsonify({"status": "error", "message": "Bạn không có quyền xóa bài viết này!"}), 403
+
+    db.session.delete(post)
+    db.session.commit()
+
+    return jsonify({"status": "success", "message": "Bài viết đã được xóa!"})
+
+@app.route("/edit_post/<int:post_id>", methods=["GET", "POST"])
+@login_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    if post.user_id != current_user.id:
+        flash("Bạn không có quyền chỉnh sửa bài viết này!", "danger")
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        post.content = request.form.get("content")
+        post.image_url = request.form.get("image_url")  # Nếu có ảnh
+
+        db.session.commit()
+        flash("Bài viết đã được cập nhật!", "success")
+        return redirect(url_for("dashboard"))
+
+    return render_template("edit_post.html", post=post)
+
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():

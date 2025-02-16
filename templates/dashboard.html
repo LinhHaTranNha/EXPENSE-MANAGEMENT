@@ -43,6 +43,14 @@
                     <strong>{{ post.name }}</strong>
                     <p class="text-muted small">{{ post.created_at.strftime('%H:%M - %d/%m/%Y') }}</p>
                 </div>
+
+                <!-- Nếu là bài viết của user hiện tại thì hiển thị nút chỉnh sửa & xóa -->
+                {% if post.user_id == current_user.id %}
+                <div class="post-actions">
+                    <button class="btn-edit-post" data-post-id="{{ post.id }}">✏️ Chỉnh sửa</button>
+                    <button class="btn-delete-post" data-post-id="{{ post.id }}">🗑 Xóa</button>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Nội dung bài viết -->
@@ -261,6 +269,44 @@
             });
         });
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 🟢 Xử lý xóa bài viết
+            document.body.addEventListener("click", function (event) {
+                if (event.target.classList.contains("btn-delete-post")) {
+                    let postId = event.target.dataset.postId;
+
+                    if (!confirm("Bạn có chắc muốn xóa bài viết này không?")) {
+                        return;
+                    }
+
+                    fetch(`/delete_post/${postId}`, {
+                        method: "DELETE"
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                event.target.closest(".post").remove(); // Xóa bài viết khỏi giao diện
+                                alert("✅ Đã xóa bài viết!");
+                            } else {
+                                alert("❌ Lỗi khi xóa bài viết!");
+                            }
+                        })
+                        .catch(err => console.error("❌ Lỗi khi xóa bài viết:", err));
+                }
+            });
+
+            // 🟢 Xử lý chỉnh sửa bài viết (Chuyển hướng sang trang edit)
+            document.body.addEventListener("click", function (event) {
+                if (event.target.classList.contains("btn-edit-post")) {
+                    let postId = event.target.dataset.postId;
+                    window.location.href = `/edit_post/${postId}`;
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>

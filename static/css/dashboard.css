@@ -432,3 +432,51 @@ body {
       display: none;
   }
 }
+
+.post-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-edit-post, .btn-delete-post {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Nút chỉnh sửa với màu sắc dịu hơn */
+.btn-edit-post {
+  background-color: #2e8b57; /* Màu xanh lá trầm */
+  color: #d4edda; /* Xanh nhạt */
+}
+
+.btn-edit-post:hover {
+  background-color: #3a9d70;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Nút xóa với màu sắc không quá chói */
+.btn-delete-post {
+  background-color: #8b2e2e; /* Đỏ trầm */
+  color: #f8d7da; /* Hồng nhạt */
+}
+
+.btn-delete-post:hover {
+  background-color: #a33d3d;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Căn chỉnh icon trong button */
+.btn-edit-post i, .btn-delete-post i {
+  font-size: 16px;
+}

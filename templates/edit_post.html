@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chỉnh sửa bài viết</title>
+  <link rel="stylesheet" href="../static/css/style.css">
+</head>
+
+<body>
+  <div class="edit-post-container">
+    <h2>Chỉnh sửa bài viết</h2>
+    <form method="POST">
+      <label for="content">Nội dung bài viết:</label>
+      <textarea id="content" name="content" class="form-control" required>{{ post.content }}</textarea>
+
+      <label for="image_url">Ảnh bài viết (nếu có):</label>
+      <input type="text" id="image_url" name="image_url" class="form-control" value="{{ post.image_url }}">
+
+      <button type="submit" class="btn-save">💾 Lưu chỉnh sửa</button>
+      <a href="{{ url_for('dashboard') }}" class="btn-back">⬅️ Quay lại</a>
+    </form>
+  </div>
+</body>
+
+</html>
