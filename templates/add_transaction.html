@@ -1,122 +1,320 @@
-<link rel="stylesheet" href="../static/css/add_transaction.css" />
-<title>Add Transaction - FinMan</title>
-<link rel="icon" type="image/png" href="../static/image/money.jpg" />
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../static/image/money.jpg">
+    <title>Thêm Giao Dịch - FinMan</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/animate.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+
+    <style>
+        /* 📌 Toàn trang */
+        body {
+            background-color: #001307;
+            color: #e0e0e0;
+            font-family: "Poppins", sans-serif;
+        }
+
+        /* 📌 Hộp chứa form */
+        .transaction-container {
+            background: #1a3323;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.8s ease-in-out;
+            margin: auto;
+        }
+
+        /* 📌 Tiêu đề */
+        .transaction-container h2 {
+            color: #00ff99;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* 📌 Mô tả */
+        .transaction-container p {
+            font-size: 14px;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        /* 📌 Nút Back to Dashboard */
+        .back-dashboard-container {
+            text-align: left;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .back-dashboard-btn {
+            background: linear-gradient(135deg, #081c12, #0f2a1b);
+            color: #00ff99;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .back-dashboard-btn:hover {
+            background: linear-gradient(135deg, #0f2a1b, #00ff99);
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        /* 📌 Form nhập giao dịch */
+        .transaction-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 📌 Label */
+        .input-icon label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #00ff99;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* 📌 Input field */
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            transition: 0.3s;
+            border: 1px solid;
+            height: 45px;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+            box-shadow: 0 0 8px #00ff99;
+        }
+
+        /* 📌 Nút Submit */
+        .btn-submit {
+            background: linear-gradient(135deg, #081c12, #0f2a1b);
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #0f2a1b, #00ff99);
+            transform: translateY(-3px);
+        }
+
+        /* 📌 Responsive */
+        @media (max-width: 576px) {
+            .transaction-container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+
+        /* 📌 Cấu trúc dropdown chính */
+        select.form-control {
+            appearance: none;
+            background-color: #1a3323;
+            /* Đồng bộ màu nền */
+            color: #e0e0e0;
+            border: 1px solid #00ff99;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: "Poppins", sans-serif;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* 📌 Khi focus vào select */
+        select.form-control:focus {
+            outline: none;
+            border-color: #00ff99;
+            box-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+        }
+
+        /* 📌 Tùy chỉnh menu dropdown */
+        select.form-control option {
+            background: #1a3323;
+            color: #e0e0e0;
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        /* 📌 Khi hover vào từng option */
+        select.form-control option:hover {
+            background: #00ff99;
+            color: #001307;
+        }
+
+        /* 📌 Khi chọn option */
+        select.form-control option:checked {
+            background: #00ff99;
+            color: #001307;
+        }
+
+        /* 📌 Dropdown icon mặc định của hệ thống (ẩn đi để tự thiết kế) */
+        select.form-control::-ms-expand {
+            display: none;
+        }
+
+        /* 📌 Tạo icon dropdown custom */
+        select.form-control {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2300ff99'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container d-flex vh-100 align-items-center justify-content-center">
+        <div class="transaction-container wow fadeInUp" data-wow-duration="1s">
+            <h2>Thêm Giao Dịch</h2>
+            <p>Quản lý chi tiêu & tiết kiệm của bạn một cách dễ dàng.</p>
+
+            <!-- 🟢 Nút Back to Dashboard -->
+            <div class="back-dashboard-container">
+                <a href="{{ url_for('dashboard') }}" class="back-dashboard-btn">⬅️ Quay lại Trang Chính</a>
+            </div>
+
+            <!-- Form nhập giao dịch -->
+            <form method="POST" class="transaction-form">
+                {{ form.hidden_tag() }}
+
+                <p class="input-icon">
+                    <label for="transaction_date">Ngày Giao Dịch</label>
+                    {{ form.transaction_date(class="form-control") }}
+                </p>
+
+                <p class="input-icon">
+                    <label for="transaction_type">Loại Giao Dịch</label>
+                    <select id="transaction_type" name="transaction_type" class="form-control" required>
+                        <option value="expense">Chi Tiêu</option>
+                        <option value="income">Thu Nhập</option>
+                        <option value="saving">Tiết Kiệm</option>
+                    </select>
+                </p>
+
+                <p class="input-icon">
+                    <label for="categorySelect">Danh Mục</label>
+                    <select id="categorySelect" name="category_name" class="form-control" required>
+                        <option value="" disabled selected>-- Chọn danh mục --</option>
+                        {% for category in categories %}
+                        <option value="{{ category.name }}">{{ category.name }}</option>
+                        {% endfor %}
+                        <option value="other">Khác (Nhập danh mục mới)</option>
+                    </select>
+                </p>
+
+                <p class="input-icon">
+                    <label for="transaction_amount">Số Tiền</label>
+                    <i class="fas fa-money-bill-wave"></i>
+                    <input type="text" name="transaction_amount" class="form-control" placeholder="Nhập số tiền">
+                </p>
 
 
-<div class="transaction-container">
-    <h2>Add Transaction</h2>
-    <p>Track your expenses and savings efficiently.</p>
-
-    <!-- 🟢 Nút Back to Dashboard -->
-    <div class="back-dashboard-container">
-        <a href="{{ url_for('dashboard') }}" class="back-dashboard-btn">
-            ⬅️ Back to Home
-        </a>
+                <button type="submit" class="btn btn-submit">Lưu Giao Dịch</button>
+            </form>
+        </div>
     </div>
 
+    <!-- WOW.js -->
+    <script src="../static/js/wow.min.js"></script>
+    <script>
+        new WOW().init();
+    </script>
 
-    <form method="POST" class="transaction-form">
-        {{ form.hidden_tag() }}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let transactionDateInput = document.querySelector("[name=transaction_date]");
 
-        <p class="input-icon">
-            <label for="transaction_date">Transaction Date</label>
-            <i class="fas fa-calendar-alt"></i>
-            {{ form.transaction_date(class="form-control") }}
-        </p>
-
-        <!-- 🟢 Chọn loại giao dịch -->
-        <p class="input-icon">
-            <label for="transaction_type">Transaction Type</label>
-            <i class="fas fa-exchange-alt"></i>
-            <select id="transaction_type" name="transaction_type" class="form-control" required>
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-                <option value="saving">Saving</option>
-            </select>
-        </p>
-
-        <p class="input-icon">
-            <label for="categorySelect">Category</label>
-            <i class="fas fa-list-ul"></i>
-            <select id="categorySelect" name="category_name" class="form-control" required>
-                <option value="" disabled selected>-- Select a category --</option>
-                {% for category in categories %}
-                <option value="{{ category.name }}">{{ category.name }}</option>
-                {% endfor %}
-                <option value="other">Other (Enter new category)</option>
-            </select>
-        </p>
-
-        <p id="newCategoryContainer" style="display: none;">
-            <label for="newCategory">New Category</label>
-            <input type="text" id="newCategory" name="new_category" class="form-control">
-        </p>
-
-
-        <p class="input-icon">
-            <label for="transaction_amount">Amount</label>
-            <i class="fas fa-money-bill-wave"></i>
-            {{ form.transaction_amount(class="form-control") }}
-        </p>
-
-        <p><button type="submit">Submit</button></p>
-    </form>
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let categorySelect = document.getElementById("categorySelect");
-        let newCategoryContainer = document.getElementById("newCategoryContainer");
-        let newCategoryInput = document.getElementById("newCategory");
-
-        categorySelect.addEventListener("change", function () {
-            if (this.value === "other") {
-                newCategoryContainer.style.display = "block";
-                newCategoryInput.setAttribute("required", "required");
-            } else {
-                newCategoryContainer.style.display = "none";
-                newCategoryInput.removeAttribute("required");
+            if (transactionDateInput) {
+                let today = new Date();
+                let formattedDate = today.toISOString().split("T")[0]; // Định dạng YYYY-MM-DD
+                transactionDateInput.value = formattedDate;
             }
         });
 
-        document.querySelector("[name=transaction_date]").setAttribute("type", "date");
-    });
+    </script>
 
-    document.addEventListener("DOMContentLoaded", function () {
-        let transactionDateInput = document.querySelector("[name=transaction_date]");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let amountInput = document.querySelector("[name=transaction_amount]");
 
-        if (transactionDateInput) {
-            let today = new Date();
-            let formattedDate = today.toISOString().split("T")[0]; // Format YYYY-MM-DD
-            transactionDateInput.value = formattedDate;
-        }
-    });
+            if (amountInput) {
+                amountInput.addEventListener("input", function (event) {
+                    let value = this.value.replace(/,/g, ''); // Xóa dấu ',' cũ để tránh lỗi nhập
+                    if (!isNaN(value) && value !== "") {
+                        this.value = Number(value).toLocaleString('en-US'); // Thêm dấu ','
+                    }
+                });
 
-    document.addEventListener("DOMContentLoaded", function () {
-        let categorySelect = document.getElementById("categorySelect");
-        let newCategoryContainer = document.getElementById("newCategoryContainer");
-        let newCategoryInput = document.getElementById("newCategory");
-
-        // Ẩn ô nhập New Category mặc định
-        newCategoryContainer.style.display = "none";
-
-        categorySelect.addEventListener("change", function () {
-            if (this.value === "other") {
-                newCategoryContainer.style.display = "block";
-                newCategoryInput.setAttribute("required", "required");
-            } else {
-                newCategoryContainer.style.display = "none";
-                newCategoryInput.removeAttribute("required");
-                newCategoryInput.value = "";  // Xóa giá trị khi ẩn đi
+                amountInput.addEventListener("blur", function () {
+                    if (this.value === "") {
+                        this.value = "0"; // Đặt về 0 nếu bỏ trống
+                    }
+                });
             }
         });
 
-        // Đặt mặc định ngày giao dịch là hôm nay
-        let transactionDateInput = document.querySelector("[name=transaction_date]");
-        if (transactionDateInput) {
-            let today = new Date().toISOString().split("T")[0]; // Format YYYY-MM-DD
-            transactionDateInput.value = today;
-        }
-    });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let categorySelect = document.getElementById("categorySelect");
+            let newCategoryContainer = document.createElement("p"); // Tạo ô nhập mới nếu chưa có
+            newCategoryContainer.id = "newCategoryContainer";
+            newCategoryContainer.style.display = "none"; // Ẩn mặc định
+            newCategoryContainer.innerHTML = `
+        <label for="newCategory">Danh Mục Mới</label>
+        <input type="text" id="newCategory" name="new_category" class="form-control" placeholder="Nhập danh mục mới">
+    `;
 
-</script>
+            categorySelect.parentNode.insertBefore(newCategoryContainer, categorySelect.nextSibling); // Thêm ô nhập sau select
+
+            categorySelect.addEventListener("change", function () {
+                if (this.value === "other") {
+                    newCategoryContainer.style.display = "block"; // Hiển thị khi chọn "Khác"
+                } else {
+                    newCategoryContainer.style.display = "none"; // Ẩn khi chọn lại danh mục khác
+                    document.getElementById("newCategory").value = ""; // Xóa dữ liệu cũ nếu có
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>
