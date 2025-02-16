@@ -21,6 +21,7 @@
         <a href="/fin_dashboard">Dashboard</a>
         <a href="/add_post">Tạo bài viết</a>
         <a href="/edit_profile">Thông tin cá nhân</a>
+        <a href="{{ url_for('logout') }}">Đăng xuất</a>
     </div>
 
     <!-- Avatar góc phải -->
@@ -31,7 +32,7 @@
 
     <!-- Nội dung chính -->
     <div class="main-content">
-        <h1 class="text-center wow fadeInUp" data-wow-duration="1s">Quản lý Chi Tiêu</h1>
+        <h1 class="text-center wow fadeInUp" data-wow-duration="1s">QUẢN LÝ CHI TIÊU</h1>
 
         <!-- Danh sách bài viết -->
         {% for post in posts %}
