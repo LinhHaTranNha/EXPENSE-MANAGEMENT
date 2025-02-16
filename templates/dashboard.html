@@ -15,7 +15,20 @@
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar wow fadeInLeft" data-wow-duration="1s">
+    <!-- <div class="sidebar wow fadeInLeft" data-wow-duration="1s">
+        <h2>FinMan</h2>
+        <a href="/add_transaction">Nhập Giao Dịch</a>
+        <a href="/fin_dashboard">Dashboard</a>
+        <a href="/add_post">Tạo bài viết</a>
+        <a href="/edit_profile">Thông tin cá nhân</a>
+        <a href="{{ url_for('logout') }}">Đăng xuất</a>
+    </div> -->
+    <!-- Nút mở sidebar -->
+    <div class="menu-toggle">☰</div>
+
+    <!-- Sidebar chính -->
+    <div class="sidebar">
+        <button class="close-sidebar">&times;</button> <!-- Nút đóng sidebar -->
         <h2>FinMan</h2>
         <a href="/add_transaction">Nhập Giao Dịch</a>
         <a href="/fin_dashboard">Dashboard</a>
@@ -304,6 +317,35 @@
                     window.location.href = `/edit_post/${postId}`;
                 }
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let menuToggle = document.querySelector(".menu-toggle");
+            let closeSidebar = document.querySelector(".close-sidebar");
+            let sidebar = document.querySelector(".sidebar");
+
+            if (menuToggle && closeSidebar && sidebar) {
+                // Mở sidebar khi nhấn vào nút ☰
+                menuToggle.addEventListener("click", function () {
+                    sidebar.classList.add("show");
+                });
+
+                // Đóng sidebar khi nhấn vào nút ❌
+                closeSidebar.addEventListener("click", function () {
+                    sidebar.classList.remove("show");
+                });
+
+                // Đóng sidebar khi nhấn vào bất cứ nơi nào ngoài nó
+                document.addEventListener("click", function (event) {
+                    if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                        sidebar.classList.remove("show");
+                    }
+                });
+            } else {
+                console.error("Không tìm thấy phần tử menu hoặc sidebar.");
+            }
         });
     </script>
 
