@@ -56,8 +56,34 @@ class DailyLimit(db.Model):
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    image_url = db.Column(db.String(255), nullable=True)  # 🔹 Cột ảnh bài viết
+    image_url = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    user = db.relationship("User", backref="posts")  # Liên kết với bảng User
+    user = db.relationship("User", backref="posts")
+    
+    # ✅ Sử dụng `back_populates` thay vì `backref` để tránh xung đột
+    likes = db.relationship("Like", back_populates="post", lazy="dynamic", cascade="all, delete-orphan")
+    comments = db.relationship("Comment", back_populates="post", lazy="dynamic", cascade="all, delete-orphan")
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
+
+    user = db.relationship("User", backref="likes")
+    
+    # ✅ Sử dụng `back_populates` thay vì `backref`
+    post = db.relationship("Post", back_populates="likes")
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    user = db.relationship("User", backref="comments")
+    
+    # ✅ Sử dụng `back_populates` thay vì `backref`
+    post = db.relationship("Post", back_populates="comments")

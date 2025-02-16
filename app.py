@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from database import db, app
-from models import User, Expense, Transaction, Category, Goal, DailyLimit, UserProfile, Post
+from models import User, Expense, Transaction, Category, Goal, DailyLimit, UserProfile, Post, Comment
 from forms import LoginForm, RegisterForm, TransactionForm, ExpenseForm
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
@@ -17,6 +17,10 @@ from flask import session, send_file
 from io import BytesIO
 import pandas as pd
 import json
+from flask import request, jsonify
+from flask_login import login_required, current_user
+from database import db
+from models import Like, Post
 
 app.config['SECRET_KEY'] = 'linh31052004'
 
@@ -303,41 +307,47 @@ def fin_dashboard():
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    form = TransactionForm()  # 🟢 Form nhập giao dịch
-    expenses = Transaction.query.filter_by(user_id=current_user.id).all()
+    form = TransactionForm()
 
-    # 📌 Lấy thông tin user profile
-    user_profile = UserProfile.query.filter_by(user_id=current_user.id).first()
+    # ✅ Truy vấn số lượng likes và comments trước
+    like_subquery = (
+        db.session.query(Like.post_id, db.func.count(Like.id).label("like_count"))
+        .group_by(Like.post_id)
+        .subquery()
+    )
 
-    # 📌 Tính tổng số tiền đã chi tiêu
-    total_spent = sum(expense.transaction_amount for expense in expenses)
+    comment_subquery = (
+        db.session.query(Comment.post_id, db.func.count(Comment.id).label("comment_count"))
+        .group_by(Comment.post_id)
+        .subquery()
+    )
 
-    # 📌 Lấy danh sách bài viết
+    # ✅ Truy vấn bài viết + JOIN subqueries
     posts = (
-        Post.query
+        db.session.query(
+            Post.id,
+            Post.content,
+            Post.image_url,
+            Post.created_at,
+            UserProfile.name,
+            UserProfile.avatar,
+            db.func.coalesce(like_subquery.c.like_count, 0).label("like_count"),  # ✅ Xử lý null bằng COALESCE
+            db.func.coalesce(comment_subquery.c.comment_count, 0).label("comment_count")
+        )
         .join(User, User.id == Post.user_id)
         .join(UserProfile, UserProfile.user_id == User.id)
-        .add_columns(
-            Post.id, Post.content, Post.image_url, Post.created_at, 
-            UserProfile.name, UserProfile.avatar
-        )
+        .outerjoin(like_subquery, like_subquery.c.post_id == Post.id)
+        .outerjoin(comment_subquery, comment_subquery.c.post_id == Post.id)
         .order_by(Post.created_at.desc())
         .all()
     )
 
-    # 📌 Chuẩn bị dữ liệu biểu đồ
-    categories = [expense.category.name for expense in expenses]
-    amounts = [expense.transaction_amount for expense in expenses]
-
     return render_template(
         "dashboard.html",
         form=form,
-        categories=categories,
-        amounts=amounts,
-        total_spent=total_spent,
         posts=posts,
-        current_user_avatar=user_profile.avatar if user_profile else "",  # 🟢 Avatar user hiện tại
-        current_user_name=user_profile.name if user_profile else current_user.username  # 🟢 Hiển thị tên user profile
+        current_user_avatar=current_user.profile.avatar,
+        current_user_name=current_user.profile.name
     )
 
 
@@ -653,6 +663,46 @@ def add_post():
 
     return render_template("add_post.html")
 
+
+@app.route("/like_post/<int:post_id>", methods=["POST"])
+@login_required
+def like_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+
+    if like:
+        db.session.delete(like)  # Bỏ like nếu đã like trước đó
+        db.session.commit()
+        like_count = post.likes.count()
+        return jsonify({"status": "unliked", "like_count": like_count})
+    
+    new_like = Like(user_id=current_user.id, post_id=post_id)
+    db.session.add(new_like)
+    db.session.commit()
+    like_count = post.likes.count()
+    
+    return jsonify({"status": "liked", "like_count": like_count})
+
+
+@app.route("/add_comment/<int:post_id>", methods=["POST"])
+@login_required
+def add_comment(post_id):
+    content = request.form.get("content")
+
+    if not content:
+        return jsonify({"error": "Nội dung không được để trống"}), 400
+
+    new_comment = Comment(user_id=current_user.id, post_id=post_id, content=content)
+    db.session.add(new_comment)
+    db.session.commit()
+
+    return jsonify({
+        "user": current_user.profile.name if current_user.profile else current_user.username,
+        "avatar": current_user.profile.avatar if current_user.profile else "/static/default-avatar.png",
+        "content": content,
+        "created_at": new_comment.created_at.strftime('%H:%M - %d/%m/%Y')
+    })
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():
