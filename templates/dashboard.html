@@ -56,13 +56,40 @@
             <img src="{{ post.image_url }}" class="img-fluid mt-2 post-image" alt="Post Image">
             {% endif %}
 
-            <button class="btn-like" data-post-id="{{ post.id }}">
-                👍 <span class="like-count">{{ post.like_count }}</span>
-            </button>
-            <button class="btn-toggle-comments" data-post-id="{{ post.id }}">
-                💬 Bình luận ({{ post.comment_count }})
-            </button>
+            <!-- Nút Like và Comment -->
+            <div class="post-actions">
+                <button class="btn-like" data-post-id="{{ post.id }}">
+                    👍 <span class="like-count">{{ post.like_count }}</span>
+                </button>
+                <button class="btn-toggle-comments" data-post-id="{{ post.id }}">
+                    💬 Bình luận (<span class="comment-count">{{ post.comment_count }}</span>)
+                </button>
+            </div>
 
+            <!-- Khu vực bình luận -->
+            <div class="comments" id="comments-{{ post.id }}" style="display: none;">
+                <!-- Danh sách bình luận (Cũ trước, mới sau) -->
+                <div class="comment-list" id="comment-list-{{ post.id }}">
+                    {% for comment in post.comments %}
+                    <div class="comment">
+                        <img src="{{ comment.user.profile.avatar }}" class="comment-avatar">
+                        <div class="comment-content">
+                            <strong>{{ comment.user.profile.name }}</strong>
+                            <p>{{ comment.content }}</p>
+                            <small>{{ comment.created_at.strftime('%H:%M - %d/%m/%Y') }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Ô nhập bình luận (đặt xuống cuối) -->
+                <div class="comment-box">
+                    <img src="{{ current_user_avatar }}" class="comment-avatar">
+                    <input type="text" id="comment-input-{{ post.id }}" placeholder="Viết bình luận...">
+                    <button class="btn-add-comment" data-post-id="{{ post.id }}">Gửi</button>
+                </div>
+
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -106,6 +133,7 @@
 
     </script>
 
+    <!-- Xử lý like  -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Xử lý Like
@@ -122,47 +150,116 @@
                         });
                 });
             });
+        });
+    </script>
 
-            // Xử lý Comment
-            document.querySelectorAll(".btn-add-comment").forEach(button => {
-                button.addEventListener("click", function () {
-                    let postId = this.dataset.postId;
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 🛠 Xử lý Ẩn/Hiện Bình Luận và gọi API lấy dữ liệu
+            document.body.addEventListener("click", function (event) {
+                if (event.target.classList.contains("btn-toggle-comments")) {
+                    let postId = event.target.dataset.postId;
+                    let commentSection = document.getElementById(`comments-${postId}`);
+                    let commentList = document.getElementById(`comment-list-${postId}`);
+
+                    if (!commentSection || !commentList) {
+                        console.error(`❌ Không tìm thấy phần bình luận cho bài viết ID: ${postId}`);
+                        return;
+                    }
+
+                    // Nếu đang ẩn, gọi API lấy bình luận
+                    if (commentSection.style.display === "none" || commentSection.style.display === "") {
+                        fetch(`/get_comments/${postId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.comments.length > 0) {
+                                    commentList.innerHTML = ""; // 🔥 Xóa bình luận cũ trước khi cập nhật
+
+                                    data.comments.forEach(comment => {
+                                        let commentHTML = `
+                                    <div class="comment d-flex align-items-start mt-2">
+                                        <img src="${comment.avatar}" class="comment-avatar" alt="Avatar">
+                                        <div class="comment-content p-2 ml-2 bg-light rounded">
+                                            <strong>${comment.user}</strong>
+                                            <p class="mb-1">${comment.content}</p>
+                                            <small class="text-muted">${comment.created_at}</small>
+                                        </div>
+                                    </div>`;
+                                        commentList.insertAdjacentHTML("beforeend", commentHTML);
+                                    });
+                                } else {
+                                    commentList.innerHTML = "<p class='text-muted'>Chưa có bình luận nào.</p>";
+                                }
+
+                                // 🟢 Hiển thị phần bình luận sau khi tải dữ liệu
+                                commentSection.style.display = "block";
+                            })
+                            .catch(err => console.error(`❌ Lỗi khi tải bình luận: ${err}`));
+                    } else {
+                        // 🟢 Nếu đang mở, thì ẩn đi
+                        commentSection.style.display = "none";
+                    }
+                }
+            });
+
+            // 🛠 Xử lý Thêm Bình Luận
+            document.body.addEventListener("click", function (event) {
+                if (event.target.classList.contains("btn-add-comment")) {
+                    let postId = event.target.dataset.postId;
                     let inputField = document.getElementById(`comment-input-${postId}`);
                     let commentList = document.getElementById(`comment-list-${postId}`);
+                    let commentCount = document.querySelector(`.btn-toggle-comments[data-post-id='${postId}'] .comment-count`);
+
+                    if (!inputField || !commentList || !commentCount) {
+                        console.error(`❌ Không tìm thấy phần tử cần thiết cho bài viết ID: ${postId}`);
+                        return;
+                    }
+
+                    let content = inputField.value.trim();
+                    if (!content) {
+                        alert("⚠️ Vui lòng nhập nội dung bình luận!");
+                        return;
+                    }
 
                     fetch(`/add_comment/${postId}`, {
                         method: "POST",
-                        body: new URLSearchParams({ content: inputField.value }),
+                        body: new URLSearchParams({ content: content }),
                         headers: { "Content-Type": "application/x-www-form-urlencoded" }
                     })
                         .then(response => response.json())
                         .then(data => {
-                            let newComment = `
-                        <div class="comment">
-                            <img src="${data.avatar}" alt="Avatar" class="comment-avatar">
-                            <div class="comment-content">
-                                <strong>${data.user}</strong>
-                                <p>${data.content}</p>
-                                <small>${data.created_at}</small>
-                            </div>
-                        </div>`;
-                            commentList.innerHTML += newComment;
-                            inputField.value = "";
-                        });
-                });
-            });
+                            if (data && data.content) {
+                                let newComment = `
+                    <div class="comment d-flex align-items-start mt-2">
+                        <img src="${data.avatar}" class="comment-avatar" alt="Avatar">
+                        <div class="comment-content p-2 ml-2 bg-light rounded">
+                            <strong>${data.user}</strong>
+                            <p class="mb-1">${data.content}</p>
+                            <small class="text-muted">${data.created_at}</small>
+                        </div>
+                    </div>`;
 
-            // Ẩn/hiện bình luận
-            document.querySelectorAll(".btn-toggle-comments").forEach(button => {
-                button.addEventListener("click", function () {
-                    let postId = this.dataset.postId;
-                    let commentSection = document.getElementById(`comments-${postId}`);
-                    commentSection.style.display = commentSection.style.display === "none" ? "block" : "none";
-                });
+                                // 🟢 Chèn bình luận mới **xuống dưới cùng** thay vì trên cùng
+                                commentList.insertAdjacentHTML("beforeend", newComment);
+
+                                // 🟢 Xóa nội dung input sau khi gửi
+                                inputField.value = "";
+
+                                // 🟢 Cập nhật số lượng bình luận
+                                commentCount.textContent = parseInt(commentCount.textContent) + 1;
+
+                                // 🟢 Cuộn đến bình luận mới nhất
+                                commentList.lastElementChild.scrollIntoView({ behavior: "smooth", block: "start" });
+
+                            } else {
+                                alert("❌ Lỗi khi thêm bình luận!");
+                            }
+                        })
+                        .catch(err => console.error("❌ Lỗi fetch bình luận:", err));
+                }
             });
         });
     </script>
-
 </body>
 
 </html>

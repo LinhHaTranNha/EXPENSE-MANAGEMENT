@@ -688,21 +688,55 @@ def like_post(post_id):
 @app.route("/add_comment/<int:post_id>", methods=["POST"])
 @login_required
 def add_comment(post_id):
+    post = Post.query.get_or_404(post_id)
     content = request.form.get("content")
 
-    if not content:
-        return jsonify({"error": "Nội dung không được để trống"}), 400
+    if not content or content.strip() == "":
+        return jsonify({"error": "Nội dung bình luận không được để trống!"}), 400
 
-    new_comment = Comment(user_id=current_user.id, post_id=post_id, content=content)
+    new_comment = Comment(
+        user_id=current_user.id,
+        post_id=post_id,
+        content=content.strip()
+    )
     db.session.add(new_comment)
     db.session.commit()
 
     return jsonify({
-        "user": current_user.profile.name if current_user.profile else current_user.username,
-        "avatar": current_user.profile.avatar if current_user.profile else "/static/default-avatar.png",
-        "content": content,
+        "user": current_user.profile.name,
+        "avatar": current_user.profile.avatar,
+        "content": new_comment.content,
         "created_at": new_comment.created_at.strftime('%H:%M - %d/%m/%Y')
     })
+
+
+@app.route('/get_comments/<int:post_id>', methods=['GET'])
+def get_comments(post_id):
+    """
+    API lấy danh sách bình luận của một bài viết dựa trên post_id
+    """
+    comments = (
+        db.session.query(Comment, UserProfile)
+        .join(User, Comment.user_id == User.id)
+        .join(UserProfile, User.id == UserProfile.user_id)
+        .filter(Comment.post_id == post_id)
+        .order_by(Comment.created_at.asc())  # 🔥 Sắp xếp cũ trước, mới sau
+        .all()
+    )
+
+    if not comments:
+        return jsonify({"comments": []})  # Trả về danh sách rỗng nếu không có bình luận nào
+
+    result = []
+    for comment, profile in comments:
+        result.append({
+            "user": profile.name,
+            "avatar": profile.avatar,
+            "content": comment.content,
+            "created_at": comment.created_at.strftime('%H:%M - %d/%m/%Y')
+        })
+
+    return jsonify({"comments": result})
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():
