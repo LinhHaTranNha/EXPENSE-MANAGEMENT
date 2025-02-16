@@ -633,16 +633,18 @@ def edit_profile():
 
     return render_template("edit_profile.html", user_profile=user_profile)
 
-# Route thêm bài viết
 @app.route("/add_post", methods=["GET", "POST"])
 @login_required
 def add_post():
     if request.method == "POST":
-        title = request.form.get("title")
         content = request.form.get("content")
         image_url = request.form.get("image_url")  # Lấy URL ảnh
 
-        new_post = Post(title=title, content=content, image_url=image_url, user_id=current_user.id)
+        if not content:
+            flash("Nội dung bài viết không được để trống!", "danger")
+            return redirect(url_for("add_post"))
+
+        new_post = Post(content=content, image_url=image_url, user_id=current_user.id)
         db.session.add(new_post)
         db.session.commit()
 
@@ -650,6 +652,7 @@ def add_post():
         return redirect(url_for("dashboard"))
 
     return render_template("add_post.html")
+
 
 # 🟢 Khởi tạo database trước khi chạy app
 with app.app_context():
