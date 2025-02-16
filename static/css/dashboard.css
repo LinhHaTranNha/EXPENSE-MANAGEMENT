@@ -30,7 +30,7 @@ body {
     margin: 5px 0;
     text-decoration: none;
     border-radius: 8px;
-    transition: background 0.3s;
+    /* transition: background 0.3s; */
 }
 
 .sidebar a:hover {
@@ -99,7 +99,7 @@ body {
 
 .post-info strong {
     font-size: 16px;
-    color: #fff;
+    color: white;
 }
 
 .post-info p {
@@ -282,15 +282,153 @@ body {
 
 .comment-content strong {
   font-size: 14px;
-  color: white;
+  color: #008500;
 }
 
-.comment-content p {
-  margin: 5px 0;
-  font-size: 14px;
-}
 
 .comment-content small {
   font-size: 12px;
   color: #bbb;
+}
+
+/* 📌 Khu vực bình luận */
+.comments {
+  background-color: #152a21; /* Màu nền xanh đậm */
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+/* 📌 Danh sách bình luận */
+.comment-list {
+  max-height: 300px;
+  overflow-y: auto; /* 🟢 Cuộn nếu có quá nhiều bình luận */
+  padding: 5px;
+}
+
+/* 📌 Mỗi bình luận */
+.comment {
+  display: flex;
+  align-items: center;
+  background-color: #1e3a2e; /* Màu nền xanh trung bình */
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  color: #f5f5f5; /* ✅ Chữ sáng để dễ đọc */
+}
+
+/* 📌 Avatar trong bình luận */
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 2px solid #00ff99; /* Viền xanh neon */
+}
+
+/* 📌 Nội dung bình luận */
+.comment-content {
+  background-color: #263d31; /* ✅ Đặt lại nền xanh tối nhạt */
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 85%;
+  color: #e0e0e0; /* ✅ Đảm bảo chữ sáng */
+}
+
+/* 📌 Nội dung bình luận */
+.comment-content p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: black; /* ✅ Chữ sáng */
+}
+
+/* 📌 Thời gian */
+.comment-content small {
+  font-size: 12px;
+  color: #bdbdbd;
+}
+
+/* 📌 Ô nhập bình luận */
+.comment-box {
+  display: flex;
+  align-items: center;
+  background-color: #1e3a2e;
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+/* 📌 Input nhập bình luận */
+.comment-box input {
+  flex-grow: 1;
+  padding: 8px;
+  border-radius: 20px;
+  border: none;
+  background: #263d31;
+  color: white;
+  margin-left: 10px;
+}
+
+/* 📌 Nút gửi bình luận */
+.comment-box button {
+  margin-left: 10px;
+  background: #00ff99;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: #152a21;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.comment-box button:hover {
+  background: #00cc77;
+}
+
+
+/* 📌 Scrollbar toàn bộ trang */
+::-webkit-scrollbar {
+  width: 10px; /* Độ rộng của thanh cuộn */
+}
+
+::-webkit-scrollbar-track {
+  background: #152a21; /* Nền của thanh cuộn */
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ff99; /* Màu thanh cuộn */
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00cc77; /* Màu khi hover */
+}
+
+/* 📌 Scrollbar cho danh sách bình luận */
+.comment-list::-webkit-scrollbar {
+  width: 8px; 
+}
+
+.comment-list::-webkit-scrollbar-track {
+  background: #1e3a2e; /* Màu nền trong danh sách bình luận */
+  border-radius: 5px;
+}
+
+.comment-list::-webkit-scrollbar-thumb {
+  background: #00ff99;
+  border-radius: 5px;
+}
+
+.comment-list::-webkit-scrollbar-thumb:hover {
+  background: #00cc77;
+}
+
+/* 📌 Ẩn scrollbar trên mobile để không chiếm diện tích */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+      display: none;
+  }
 }
