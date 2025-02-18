@@ -294,26 +294,35 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let categorySelect = document.getElementById("categorySelect");
-            let newCategoryContainer = document.createElement("p"); // Tạo ô nhập mới nếu chưa có
+            let newCategoryContainer = document.createElement("p");
             newCategoryContainer.id = "newCategoryContainer";
-            newCategoryContainer.style.display = "none"; // Ẩn mặc định
+            newCategoryContainer.style.display = "block"; // Mặc định hiển thị danh mục mới
             newCategoryContainer.innerHTML = `
         <label for="newCategory">Danh Mục Mới</label>
         <input type="text" id="newCategory" name="new_category" class="form-control" placeholder="Nhập danh mục mới">
     `;
+            categorySelect.parentNode.insertBefore(newCategoryContainer, categorySelect.nextSibling);
 
-            categorySelect.parentNode.insertBefore(newCategoryContainer, categorySelect.nextSibling); // Thêm ô nhập sau select
+            let newCategoryInput = document.getElementById("newCategory");
 
+            // Khi người dùng chọn danh mục có sẵn => Ẩn ô nhập danh mục mới
             categorySelect.addEventListener("change", function () {
-                if (this.value === "other") {
-                    newCategoryContainer.style.display = "block"; // Hiển thị khi chọn "Khác"
+                if (this.value !== "other") {
+                    newCategoryContainer.style.display = "none"; // Ẩn ô nhập
+                    newCategoryInput.value = ""; // Xóa nội dung ô nhập
                 } else {
-                    newCategoryContainer.style.display = "none"; // Ẩn khi chọn lại danh mục khác
-                    document.getElementById("newCategory").value = ""; // Xóa dữ liệu cũ nếu có
+                    newCategoryContainer.style.display = "block"; // Nếu chọn "Khác", hiện lại
+                }
+            });
+
+            // Khi người dùng nhập vào danh mục mới => Tự động chọn "Khác" trong dropdown
+            newCategoryInput.addEventListener("input", function () {
+                if (this.value.trim() !== "") {
+                    categorySelect.value = "other"; // Chuyển dropdown về "Khác"
+                    newCategoryContainer.style.display = "block"; // Giữ ô nhập hiển thị
                 }
             });
         });
-
     </script>
 </body>
 
