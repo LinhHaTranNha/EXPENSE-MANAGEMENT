@@ -3,6 +3,29 @@ body {
   background-color: #001307; /* Màu nền đậm */
   color: #e0e0e0; /* Màu chữ nhạt */
   font-family: "Poppins", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* 📌 Container chính */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+/* 📌 Cột trái (Form đăng nhập) */
+.left-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
 }
 
 /* 📌 Khối login */
@@ -11,13 +34,11 @@ body {
   padding: 40px;
   border-radius: 15px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-  max-width: 1000px;
+  max-width: 400px; /* Giữ form có kích thước hợp lý */
   width: 100%;
   text-align: center;
   backdrop-filter: blur(10px);
   animation: fadeIn 0.8s ease-in-out;
-  position: relative;
-  left: 55px;
 }
 
 /* 📌 Hiệu ứng xuất hiện */
@@ -47,8 +68,14 @@ body {
 
 /* 📌 Ô nhập liệu */
 .form-group {
-  position: relative;
   margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
 }
 
 .form-control {
@@ -70,13 +97,12 @@ body {
   color: white;
 }
 
-/* 📌 Placeholder đẹp hơn */
+/* 📌 Placeholder */
 .form-control::placeholder {
   color: rgba(255, 255, 255, 0.5);
   transition: 0.3s;
 }
 
-/* 📌 Placeholder mờ dần khi nhập */
 .form-control:focus::placeholder {
   color: rgba(255, 255, 255, 0.2);
 }
@@ -113,22 +139,72 @@ a:hover {
   text-decoration: underline;
 }
 
-/* 📌 Hiệu ứng khi nhấn */
-.btn-dark:active {
-  transform: scale(0.98);
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
 /* 📌 Cột phải */
 .right-section {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 30px;
-  flex-direction: column; /* Xếp hình theo chiều dọc */
+  flex-direction: column;
   position: relative;
-  top: 50px;
-  left: 100px;
+  width: 50%;
+}
+
+/* 📌 Ảnh minh họa */
+.illustration-img {
+  width: 90%;
+  max-width: 300px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Hiệu ứng zoom-in khi hover */
+.illustration-img:hover {
+  transform: scale(1.1);
+}
+
+/* 📌 Điều chỉnh vị trí ảnh minh họa */
+.alert-login {
+  position: relative;
+  top: -20px;
+}
+
+.trans-login {
+  position: relative;
+  top: -40px;
+}
+
+
+@media (max-width: 650px) {
+  .right-section {
+    display: none;
+  }
+
+  .left-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 360px;
+    padding: 30px;
+    box-shadow: 0px 4px 12px rgba(0, 255, 153, 0.2);
+  }
+
+  .form-control {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .btn-dark {
+    font-size: 16px;
+    padding: 12px;
+  }
 }
 
 /* 📌 Ảnh minh họa */
