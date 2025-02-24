@@ -488,25 +488,25 @@ def export_expense():
 
     # 🟢 Truy vấn tổng chi tiêu của tháng hiện tại
     expense_current = db.session.query(
-        func.day(Transaction.transaction_date),
+        func.extract('day', Transaction.transaction_date),  # 🔥 Sửa func.day() thành extract()
         func.sum(Transaction.transaction_amount).label("Current Month Expense")
     ).filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_type == "expense",
         extract("month", Transaction.transaction_date) == current_month,
         extract("year", Transaction.transaction_date) == current_year
-    ).group_by(func.day(Transaction.transaction_date)).all()
+    ).group_by(func.extract('day', Transaction.transaction_date)).all()  # 🔥 Sửa func.day() thành extract()
 
     # 🟢 Truy vấn tổng chi tiêu của tháng trước
     expense_previous = db.session.query(
-        func.day(Transaction.transaction_date),
+        func.extract('day', Transaction.transaction_date),  # 🔥 Sửa func.day() thành extract()
         func.sum(Transaction.transaction_amount).label("Previous Month Expense")
     ).filter(
         Transaction.user_id == current_user.id,
         Transaction.transaction_type == "expense",
         extract("month", Transaction.transaction_date) == previous_month,
         extract("year", Transaction.transaction_date) == previous_year
-    ).group_by(func.day(Transaction.transaction_date)).all()
+    ).group_by(func.extract('day', Transaction.transaction_date)).all()  # 🔥 Sửa func.day() thành extract()
 
     # 🟢 Chuyển kết quả thành DataFrame
     df_current = pd.DataFrame(expense_current, columns=["Day", "Current Month Expense"])
@@ -537,8 +537,6 @@ def export_expense():
     output.seek(0)
 
     return send_file(output, as_attachment=True, download_name="Expense_Comparison.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-
 @app.route("/export_summary", methods=["GET"])
 @login_required
 def export_summary():
