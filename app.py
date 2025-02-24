@@ -43,7 +43,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.password == form.password.data:
             login_user(UserLogin(user))
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("fin_dashboard"))
     return render_template("login.html", form=form)
 
 @app.route("/logout")
