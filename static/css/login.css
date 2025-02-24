@@ -176,6 +176,33 @@ a:hover {
   top: -40px;
 }
 
+/* 📌 Khối login */
+.login-box {
+  background: #1a3323;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  max-width: 1000px;
+  width: 100%;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.8s ease-in-out;
+  position: relative;
+  left: 55px;
+}
+
+/* 📌 Cột phải */
+.right-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  flex-direction: column; /* Xếp hình theo chiều dọc */
+  position: relative;
+  top: 50px;
+  left: 100px;
+}
+
 
 @media (max-width: 650px) {
   .right-section {

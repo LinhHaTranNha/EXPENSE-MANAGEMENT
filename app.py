@@ -27,6 +27,10 @@ app.config['SECRET_KEY'] = 'linh31052004'
 # Cấu hình Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"  # Redirect về trang login nếu chưa đăng nhập
+login_manager.login_message = "Bạn cần đăng nhập để truy cập trang này."
+login_manager.login_message_category = "danger"
+
 
 class UserLogin(UserMixin):
     def __init__(self, user):
