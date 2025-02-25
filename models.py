@@ -1,12 +1,12 @@
 from database import db
 from flask_login import UserMixin  # 🟢 Import UserMixin
 
-class User(db.Model, UserMixin):  # 🟢 Kế thừa UserMixin
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default="user")  # 🆕 Thêm cột role
 
-    # Liên kết với bảng UserProfile (một-một)
     profile = db.relationship("UserProfile", backref="user", uselist=False)
 
 class UserProfile(db.Model):

@@ -757,7 +757,8 @@ def get_comments(post_id):
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
 
-    if post.user_id != current_user.id:
+    # Kiểm tra nếu user là chủ bài viết hoặc có role là "admin"
+    if post.user_id != current_user.id and current_user.role != "admin":
         return jsonify({"status": "error", "message": "Bạn không có quyền xóa bài viết này!"}), 403
 
     db.session.delete(post)
@@ -765,12 +766,14 @@ def delete_post(post_id):
 
     return jsonify({"status": "success", "message": "Bài viết đã được xóa!"})
 
+
 @app.route("/edit_post/<int:post_id>", methods=["GET", "POST"])
 @login_required
 def edit_post(post_id):
     post = Post.query.get_or_404(post_id)
 
-    if post.user_id != current_user.id:
+    # Cho phép chỉnh sửa nếu là chủ bài viết hoặc admin
+    if post.user_id != current_user.id and current_user.role != "admin":
         flash("Bạn không có quyền chỉnh sửa bài viết này!", "danger")
         return redirect(url_for("dashboard"))
 
@@ -783,6 +786,7 @@ def edit_post(post_id):
         return redirect(url_for("dashboard"))
 
     return render_template("edit_post.html", post=post)
+
 
 
 # 🟢 Khởi tạo database trước khi chạy app

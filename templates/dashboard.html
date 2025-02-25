@@ -58,7 +58,7 @@
                 </div>
 
                 <!-- Nếu là bài viết của user hiện tại thì hiển thị nút chỉnh sửa & xóa -->
-                {% if post.user_id == current_user.id %}
+                {% if post.user_id == current_user.id or current_user.role == "admin"%}
                 <div class="post-actions">
                     <button class="btn-edit-post" data-post-id="{{ post.id }}">✏️ Chỉnh sửa</button>
                     <button class="btn-delete-post" data-post-id="{{ post.id }}">🗑 Xóa</button>
